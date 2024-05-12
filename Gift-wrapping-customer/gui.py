@@ -26,7 +26,6 @@ class MainWindow(tk.Tk):
     # these class variables are created so that actions can be performed from other frames
     frames = None  # the frames dictionary must be accessed to show the next/previous frame
     progress_bar = None  # the progress bar must be updated throughout the application
-    back_button = None
 
     def __init__(self):
         super().__init__()
@@ -578,8 +577,8 @@ class DatesFrame(ParentFrame):
 
         # here it checks if the dates and times were not selected
         if not (drop_off_date and pick_up_date and drop_off_time and pick_up_time):
-            error1 = tk.Label(self, text="Please, pick both dates and times", font=("Helvetica", 10), bg="#EBFFFE"
-                              , fg="red")
+            error1 = tk.Label(self, text="Please, pick both dates and times", font=("Helvetica", 10), bg="#EBFFFE",
+                              fg="red")
             error1.place(relx=.39, rely=.75)
         # if dates where selected they are processed
         else:
