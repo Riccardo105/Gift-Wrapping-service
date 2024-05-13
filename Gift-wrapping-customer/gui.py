@@ -4,7 +4,7 @@ from tkinter.ttk import Progressbar
 from datetime import datetime
 import subprocess
 import sys
-import builder as b
+import builders as b
 import present as p
 
 
@@ -19,7 +19,8 @@ install("tkcalendar")
 from tkcalendar import Calendar
 
 
-builder = b.PresentBuilder()
+present_builder = b.PresentBuilder()
+user_builder = b.UserBuilder()
 
 
 class MainWindow(tk.Tk):
@@ -133,27 +134,43 @@ class SignupFrame(tk.Frame):
 
         self.config(bg="#EBFFFE")
 
-        # here the account detail dictionary is initialised,
-        # this will store the user details until they're ready to be sent to the database
-        self.new_account = {"name": None, "surname": None, "DoB": None, "email": None, "phone number": None,
-                            "password": None, "house number": None, "street": None, "postcode": None, "city": None}
-
         self.header = tk.Label(self, text="Please enter your details:", font=("Helvetica", 20), bg="#EBFFFE")
         self.header.place(relx=0.25, rely=0.1)
 
         self.main_frame = tk.Frame(self, bg="#EBFFFE")
         self.main_frame.place(relx=0.36, rely=0.2)
 
-        # the account creation form is created here
-        for idx, key in enumerate(self.new_account.items()):
-            self.label = tk.Label(self.main_frame, text=key[0], font=("Helvetica", 9), bg="#EBFFFE")
-            self.label.grid(row=idx, column=0, padx=5, pady=5, sticky="w")
+        # here the account detail dictionary is initialised,
+        # this will store the user details until they're ready to be sent to the database
+        self.new_account = {"name": None, "surname": None, "DoB": None, "email": None, "phone number": None,
+                            "house number": None, "street": None, "postcode": None, "city": None}
 
-            self.entry = tk.Entry(self.main_frame, bd=2, relief=tk.SUNKEN)
+        # this dictionary allows how to access each entry individually
+        self.entry_vars = {}
+
+        # the account creation form is created here
+        for idx, (key, _) in enumerate(self.new_account.items()):
+            self.label = tk.Label(self.main_frame, text=key, font=("Helvetica", 9), bg="#EBFFFE")
+            self.label.grid(row=idx, column=0, padx=5, pady=5, sticky="w")
+            # NOTE: both dictionaries keys will always match as entry_vars{} is created off of new_account{}
+            self.entry_vars[key] = tk.StringVar()
+            self.entry = tk.Entry(self.main_frame, bd=2, textvariable=self.entry_vars[key], relief=tk.SUNKEN)
             self.entry.grid(row=idx, column=1, padx=5, pady=5)
 
-        self.submit_button = tk.Button(self, text="Create account")
+        self.submit_button = ttk.Button(self, text="Create account", command=lambda:
+                                        self.process_user_details(self.new_account))
         self.submit_button.place(relx=0.475, rely=0.8)
+
+    # this function extract each entry value and assigns it to the correspondent key in the new_account dictionary
+    def process_user_details(self, details_dict):
+        for key, var in self.entry_vars.items():
+            entry_value = var.get()
+            details_dict[key] = entry_value
+        print(details_dict)
+        if user_builder.input_validation(details_dict):
+            pass
+        else:
+            print("porcoddio")
 
 
 # the Parent class contains all the widgets shared by every page of the application
@@ -318,7 +335,7 @@ class ShapeFrame(ParentFrame):
                 MainWindow.show_frame(WrappingPaperFrame)
                 MainWindow.update_progress_bar("up")
                 # if value is valid it sends it to the area function
-                builder.set_shape(p.cube, value1)
+                present_builder.set_shape(p.cube, value1)
                 return True, value1
 
             elif value == "cuboid":
@@ -328,7 +345,7 @@ class ShapeFrame(ParentFrame):
                 MainWindow.show_frame(WrappingPaperFrame)
                 MainWindow.update_progress_bar("up")
                 # if value is valid it sends it to the area function
-                builder.set_shape(p.cuboid, value1, value2, value3)
+                present_builder.set_shape(p.cuboid, value1, value2, value3)
                 return True, value1, value2, value3
 
             elif value == "cylinder":
@@ -337,7 +354,7 @@ class ShapeFrame(ParentFrame):
                 MainWindow.show_frame(WrappingPaperFrame)
                 MainWindow.update_progress_bar("up")
                 # if value is valid it sends it to the area function
-                builder.set_shape(p.cylinder, value1, value2)
+                present_builder.set_shape(p.cylinder, value1, value2)
                 return True, value1, value2
         except ValueError:
             error_label = tk.Label(self, text="Invalid input: Enter a number", bg="#EBFFFE", fg="red")
@@ -430,10 +447,10 @@ class WrappingPaperFrame(ParentFrame):
     def process_paper_selection(self):
         if self.selected_paper.get() == "standard paper":
             p.w_paper1.set_colour(self.selected_colour.get())
-            builder.set_wrapping_paper(p.w_paper1)
+            present_builder.set_wrapping_paper(p.w_paper1)
         elif self.selected_paper.get() == "premium paper":
             p.w_paper2.set_colour(self.selected_colour.get())
-            builder.set_wrapping_paper(p.w_paper2)
+            present_builder.set_wrapping_paper(p.w_paper2)
 
 
 # Extras page implementation
@@ -492,14 +509,14 @@ class ExtrasFrame(ParentFrame):
 
     def process_bow_selection(self):
         if self.bow_variable.get() == 1:
-            builder.set_bow(p.bow1)
+            present_builder.set_bow(p.bow1)
         else:
-            builder.set_bow(None)
+            present_builder.set_bow(None)
 
     def process_gift_card_selection(self):
         try:
             if self.gift_card_variable.get() == 0:
-                builder.set_gift_card(None)
+                present_builder.set_gift_card(None)
                 MainWindow.show_frame(DatesFrame),
                 MainWindow.update_progress_bar("up")
             elif self.gift_card_variable.get() == 1:
@@ -510,7 +527,7 @@ class ExtrasFrame(ParentFrame):
                 else:
                     text = str(self.gift_card_text.get())
                     p.gift_card1.set_text(text)
-                    builder.set_gift_card(p.gift_card1)
+                    present_builder.set_gift_card(p.gift_card1)
                     MainWindow.show_frame(DatesFrame),
                     MainWindow.update_progress_bar("up")
         except ValueError:
@@ -615,8 +632,8 @@ class DatesFrame(ParentFrame):
                     else:
                         MainWindow.show_frame(QuoteFrame),
                         MainWindow.update_progress_bar("up")
-                        builder.set_order_dates(drop_off_datetime, pick_up_datetime)
-                        builder.calculate_price()
+                        present_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
+                        present_builder.calculate_price()
                         QuoteFrame.setup_quote()
 
 
@@ -637,7 +654,7 @@ class QuoteFrame(ParentFrame):
         self.back_button.config(command=lambda: MainWindow.show_frame(DatesFrame))
 
         # once all the steps have been completed the present is finalised and built
-        QuoteFrame.new_present = builder.build()
+        QuoteFrame.new_present = present_builder.build()
 
         QuoteFrame.quote = tk.Text(self, width=50, height=20, font=("Helvetica", 10))
         QuoteFrame.quote.place(relx=.3, rely=.15)

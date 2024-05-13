@@ -1,4 +1,5 @@
 import present
+import user_account
 
 
 # this is the builder responsible for creating and building the present
@@ -50,4 +51,16 @@ class PresentBuilder:
 
     def build(self):
         return self.new_present
+
+
+# this is the builder responsible for creating and building a new user account
+class UserBuilder:
+
+    def input_validation(self, dict):
+        for key, value in dict.items():
+            if not value:
+                return False
+        return True
+
+
 
