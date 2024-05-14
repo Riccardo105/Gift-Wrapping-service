@@ -20,7 +20,7 @@ from tkcalendar import Calendar
 
 
 present_builder = b.PresentBuilder()
-user_builder = b.UserBuilder()
+user_builder = b.AccountBuilder()
 
 
 class MainWindow(tk.Tk):
@@ -70,11 +70,11 @@ class MainWindow(tk.Tk):
         self.signup_label.grid(row=5, column=0, sticky=tk.W, pady=5)
 
         self.signup_button = ttk.Button(self.login_frame, text="Signup", command=lambda:
-                                        self.sign_up_page.grid(row=0, column=0, sticky="nsew"))
+                                        MainWindow.show_frame(SignupFrame))
         self.signup_button.grid(row=6, column=0, padx=5)
 
         # a signup frame object is created but not given a place (will be given by the signup button)
-        self.sign_up_page = SignupFrame(self)
+
         # Window main structure (frames are not displayed initially)
         self.top_frame = tk.Frame(self, bg="#EBFFFE")
         self.top_frame.configure(width="1000", height="100")
@@ -96,7 +96,7 @@ class MainWindow(tk.Tk):
         MainWindow.frames = {}
 
         # here all the frames are being looped and displayed in the window, and placed inside the dictionary
-        for F in (ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame, QuoteFrame):
+        for F in (SignupFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame, QuoteFrame):
             frame = F(self.main_frame)
             MainWindow.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -126,6 +126,11 @@ class MainWindow(tk.Tk):
             MainWindow.progress_bar["value"] -= 25
 
 
+
+# Home page implementation
+
+class HomeFrame(tk.Frame):
+    pass
 # Signup page implementation
 
 class SignupFrame(tk.Frame):
@@ -135,42 +140,67 @@ class SignupFrame(tk.Frame):
         self.config(bg="#EBFFFE")
 
         self.header = tk.Label(self, text="Please enter your details:", font=("Helvetica", 20), bg="#EBFFFE")
-        self.header.place(relx=0.25, rely=0.1)
+        self.header.place(relx=0.35, rely=0.1)
 
-        self.main_frame = tk.Frame(self, bg="#EBFFFE")
-        self.main_frame.place(relx=0.36, rely=0.2)
+        self.back_button = tk.Button(self, text="Back")
+        self.back_button.place(relx=0.2, rely=0.2)
+
+        # credential form set up
+        self.credentials_frame = tk.Frame(self, bg="#EBFFFE", width=200, height=300)
+        self.credentials_frame.place(relx=0.36, rely=0.2)
 
         # here the account detail dictionary is initialised,
         # this will store the user details until they're ready to be sent to the database
         self.new_account = {"name": None, "surname": None, "DoB": None, "email": None, "phone number": None,
                             "house number": None, "street": None, "postcode": None, "city": None}
 
-        # this dictionary allows how to access each entry individually
+        # this dictionary allows how to access each entry individually, so they can be assigned to new_account
         self.entry_vars = {}
 
         # the account creation form is created here
         for idx, (key, _) in enumerate(self.new_account.items()):
-            self.label = tk.Label(self.main_frame, text=key, font=("Helvetica", 9), bg="#EBFFFE")
+            self.label = tk.Label(self.credentials_frame, text=key, font=("Helvetica", 9), bg="#EBFFFE")
             self.label.grid(row=idx, column=0, padx=5, pady=5, sticky="w")
             # NOTE: both dictionaries keys will always match as entry_vars{} is created off of new_account{}
             self.entry_vars[key] = tk.StringVar()
-            self.entry = tk.Entry(self.main_frame, bd=2, textvariable=self.entry_vars[key], relief=tk.SUNKEN)
+            self.entry = tk.Entry(self.credentials_frame, bd=2, textvariable=self.entry_vars[key], relief=tk.SUNKEN)
             self.entry.grid(row=idx, column=1, padx=5, pady=5)
 
         self.submit_button = ttk.Button(self, text="Create account", command=lambda:
                                         self.process_user_details(self.new_account))
         self.submit_button.place(relx=0.475, rely=0.8)
 
+        # password form set up
+        self.password_frame = tk.Frame(self, bg="#EBFFFE", width=250, height=300)
+        self.password_label = tk.Label(self.password_frame, text="Password", font=("Helvetica", 8))
+        self.password_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        self.password = tk.StringVar()
+        self.password_entry = tk.Entry(self.password_frame, textvariable=self.password)
+        self.password_entry.grid(row=1, column=0, padx=5, pady=5)
+
+        self.confirm_password_label = tk.Label(self.password_frame, text="Confirm password", font=("Helvetica", 8))
+        self.confirm_password_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        self.confirm_password = tk.StringVar()
+        self.confirm_password_entry = tk.Entry(self.password_frame, textvariable=self.confirm_password)
+        self.confirm_password_entry.grid(row=3, column=0, padx=5, pady=5)
+
+
+
     # this function extract each entry value and assigns it to the correspondent key in the new_account dictionary
     def process_user_details(self, details_dict):
         for key, var in self.entry_vars.items():
             entry_value = var.get()
             details_dict[key] = entry_value
-        print(details_dict)
         if user_builder.input_validation(details_dict):
-            pass
+            self.password_frame.place(relx=0.36, rely=0.2)
+            self.header.config(text="Now choose a password")
+            self.submit_button.config(text="save password")
+            self.credentials_frame.place_forget()
+
         else:
-            print("porcoddio")
+            error_message = tk.Label(self, text="make sure no field is empty", font=("Helvetica", 10), bg="#EBFFFE",
+                                     fg="red")
+            error_message.place(relx=0.43, rely=0.75)
 
 
 # the Parent class contains all the widgets shared by every page of the application

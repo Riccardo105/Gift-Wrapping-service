@@ -54,13 +54,46 @@ class PresentBuilder:
 
 
 # this is the builder responsible for creating and building a new user account
-class UserBuilder:
+class AccountBuilder:
 
+    def __init__(self):
+        self.new_account = user_account.UserAccount()
+
+    # here we validate the user input, if successful we pass the dictionary over to the next two methods
     def input_validation(self, dict):
         for key, value in dict.items():
             if not value:
                 return False
+        self.create_credentials(dict)
+        self.create_address(dict)
         return True
+
+    def password_validation(self, password):
+        pass
+
+    # here we create a Credential object
+
+    def create_credentials(self, dict):
+        credentials_keys = ["name", "surname", "DoB", "email", "phone number"]
+        user_credentials = user_account.Credentials()
+        for key in credentials_keys:
+            if key in dict:
+                # replace method is used to link 2 word words to the corresponding attribute
+                setattr(user_credentials, key.replace(" ", "_"), dict[key])
+
+        self.new_account.credentials = user_credentials
+        return self.new_account.credentials
+
+    # here we create an Address object
+    def create_address(self, dict):
+        address_keys = ["house number", "street", "postcode", "city"]
+        user_address = user_account.Address()
+        for key in address_keys:
+            if key in dict:
+                # replace method is used to link 2 word words to the corresponding attribute
+                setattr(user_address, key.replace(" ", "_"), dict[key])
+        self.new_account.user_address = user_address
+        return self.new_account.user_address
 
 
 
