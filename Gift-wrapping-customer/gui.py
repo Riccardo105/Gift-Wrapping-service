@@ -8,7 +8,7 @@ import builders as b
 import present as p
 
 
-# here the installation process of the tckalendar widget take place
+# here the installation process of the tkcalendar widget take place
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
@@ -40,15 +40,41 @@ class MainWindow(tk.Tk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        # initial Home page setup
-        self.home_frame = tk.Frame(self)
-        self.home_frame.grid(row=0, column=0, sticky="nsew")
+        # this dictionary will contain all the frames, so they are accessible to show_frame()
+        MainWindow.frames = {}
 
-        self.header = tk.Label(self.home_frame, text=" Welcome to the Gift Wrapping Store!", font=("Helvetica", 20))
+        # here all the frames are being looped and displayed in the window, and placed inside the dictionary
+        for F in (HomeFrame, SignupFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame, QuoteFrame):
+            frame = F(self)
+            MainWindow.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+            frame.config(width=1000, height=550, bg="#EBFFFE")
+
+        # show_frame is run once to determine the starting page (otherwise last page in loop would show_up)
+        self.show_frame(ShapeFrame)
+
+        # run program
+        self.mainloop()
+
+    # show frame will be called by the submit buttons, and it will display the frame passed as argument
+    @classmethod
+    def show_frame(cls, page):
+        frame = MainWindow.frames[page]
+        frame.tkraise()
+
+
+# home page implementation
+class HomeFrame(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent)
+
+        # initial Home page setup
+
+        self.header = tk.Label(self, text=" Welcome to the Gift Wrapping Store!", font=("Helvetica", 20))
         self.header.place(relx=0.27, rely=0.1)
 
         # here the login frame is set up
-        self.login_frame = tk.Frame(self.home_frame)
+        self.login_frame = tk.Frame(self)
         self.login_frame.place(relx=0.43, rely=0.3)
 
         self.username_label = ttk.Label(self.login_frame, text="Email:", font=("Helvetica", 9))
@@ -73,66 +99,8 @@ class MainWindow(tk.Tk):
                                         MainWindow.show_frame(SignupFrame))
         self.signup_button.grid(row=6, column=0, padx=5)
 
-        # a signup frame object is created but not given a place (will be given by the signup button)
 
-        # Window main structure (frames are not displayed initially)
-        self.top_frame = tk.Frame(self, bg="#EBFFFE")
-        self.top_frame.configure(width="1000", height="100")
-
-        # Creation of the progress bar inside top_frame
-        steps = ["Shape", "Wrapping Paper", "Extras", "Dates"]
-        for i in range(len(steps)):
-            self.step_label = tk.Label(self.top_frame, text=steps[i], font=("Helvetica", 12), bg="#EBFFFE")
-            self.step_label.grid(row=0, column=i)
-        MainWindow.progress_bar = Progressbar(self.top_frame, mode="determinate", length=1000, orient="horizontal")
-        # the progress bar columnspan is equal to the number of steps so all the labels automatically align
-        MainWindow.progress_bar.grid(row=1, column=0, columnspan=len(steps))
-
-        # main frame is where all the program pages will be displayed
-        self.main_frame = tk.Frame(self)
-        self.main_frame.config(width=1000, height=550)
-
-        # this dictionary will contain all the frames, so they are accessible to show_frame()
-        MainWindow.frames = {}
-
-        # here all the frames are being looped and displayed in the window, and placed inside the dictionary
-        for F in (SignupFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame, QuoteFrame):
-            frame = F(self.main_frame)
-            MainWindow.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-            frame.config(width=1000, height=550, bg="#EBFFFE")
-
-        # run program
-        self.mainloop()
-
-    # set_up_frames will hide the Home page and enter into the application
-    def set_up_frames(self):
-        self.home_frame.pack_forget()
-        self.top_frame.grid(row=0, column=0)
-        self.main_frame.grid(row=1, column=0)
-
-    # show frame will be called by the submit buttons, and it will display the frame passed as argument
-    @classmethod
-    def show_frame(cls, page):
-        frame = MainWindow.frames[page]
-        frame.tkraise()
-
-    # update progress bar takes in up or down to determine the state of the progress
-    @classmethod
-    def update_progress_bar(cls, value):
-        if value == "up":
-            MainWindow.progress_bar["value"] += 25
-        elif value == "down":
-            MainWindow.progress_bar["value"] -= 25
-
-
-
-# Home page implementation
-
-class HomeFrame(tk.Frame):
-    pass
 # Signup page implementation
-
 class SignupFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
@@ -184,8 +152,6 @@ class SignupFrame(tk.Frame):
         self.confirm_password_entry = tk.Entry(self.password_frame, textvariable=self.confirm_password)
         self.confirm_password_entry.grid(row=3, column=0, padx=5, pady=5)
 
-
-
     # this function extract each entry value and assigns it to the correspondent key in the new_account dictionary
     def process_user_details(self, details_dict):
         for key, var in self.entry_vars.items():
@@ -208,12 +174,32 @@ class SignupFrame(tk.Frame):
 class ParentFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
-        self.header = tk.Label(self, font=("Helvetica", 16), bg="#EBFFFE")
-        self.back_button = ttk.Button(self, text="Back")
+
+        # creation of page layout
+        self.top_frame = tk.Frame(self, bg="#EBFFFE")
+        self.top_frame.grid(row=0, column=0)
+        self.main_frame = tk.Frame(self, width=1000, height=550, bg="#EBFFFE")
+        self.main_frame.grid(row=1, column=0, sticky="nsew")
+
+        # window controllers set up
+        # the header has no position because it will be determined later on according to text length
+        self.header = tk.Label(self.main_frame, font=("Helvetica", 16), bg="#EBFFFE")
+        self.back_button = ttk.Button(self.main_frame, text="Back")
         self.back_button.place(relx=0.05, rely=0.05)
 
-        self.submit_button = ttk.Button(self, text="Submit")
+        self.submit_button = ttk.Button(self.main_frame, text="Submit")
         self.submit_button.place(relx=.475, rely=.8)
+
+        # Creation of the progress bar inside top_frame
+        steps = ["Shape", "Wrapping Paper", "Extras", "Dates"]
+        for i in range(len(steps)):
+            self.step_label = tk.Label(self.top_frame, text=steps[i], font=("Helvetica", 12), bg="#EBFFFE")
+            self.step_label.grid(row=0, column=i)
+        self.progress_bar = Progressbar(self.top_frame, mode="determinate", length=1000, orient="horizontal")
+        # the progress bar columnspan is equal to the number of steps so all the labels automatically align
+        self.progress_bar.grid(row=1, column=0, columnspan=len(steps))
+
+    # update progress bar takes in up or down to determine the state of the progress
 
 
 # Shape page implementation
@@ -224,7 +210,7 @@ class ShapeFrame(ParentFrame):
         # window controllers setup
         self.header.config(text="Define the gift's shape:")
         self.header.place(relx=.4, rely=.03)
-        self.sub_header = tk.Label(self, text="please enter the gift's dimension:", font=("Helvetica", 12),
+        self.sub_header = tk.Label(self.main_frame, text="please enter the gift's dimension:", font=("Helvetica", 12),
                                    bg="#EBFFFE")
         self.sub_header.place(relx=.38, rely=.5)
 
@@ -233,21 +219,21 @@ class ShapeFrame(ParentFrame):
         ''' NOTE: within shape frame the submit button is configured inside "entry_frame_setup", 
             as it has different parameters according to user input'''
 
-        self.cube_frame = tk.Frame(self, bg="#EBFFFE")
+        self.cube_frame = tk.Frame(self.main_frame, bg="#EBFFFE")
         self.cube_frame.place(relx=.15, rely=.15)
         self.cube_canvas = tk.Canvas(self.cube_frame, width=100, height=130, bg="#EBFFFE", highlightthickness=0)
         self.cube_canvas.grid(row=0, column=0)
         self.cube_canvas.create_rectangle(0, 0, 100, 100, fill="purple", outline="purple")
 
         # creation of cuboid frame
-        self.cuboid_frame = tk.Frame(self, bg="#EBFFFE")
+        self.cuboid_frame = tk.Frame(self.main_frame, bg="#EBFFFE")
         self.cuboid_frame.place(relx=.45, rely=.22)
         self.cuboid_canvas = tk.Canvas(self.cuboid_frame, width=100, height=95, bg="#EBFFFE", highlightthickness=0)
         self.cuboid_canvas.grid(row=0, column=0)
         self.cuboid_canvas.create_rectangle(0, 0, 150, 60, fill="purple", outline="purple")
 
         # creation of cylinder image
-        self.cylinder_frame = tk.Frame(self, bg="#EBFFFE")
+        self.cylinder_frame = tk.Frame(self.main_frame, bg="#EBFFFE")
         self.cylinder_frame.place(relx=.75, rely=0.12)
 
         self.cylinder_canvas = tk.Canvas(self.cylinder_frame, width=100, height=150, bg="#EBFFFE", highlightthickness=0)
@@ -281,7 +267,7 @@ class ShapeFrame(ParentFrame):
         self.cylinder_button.grid(row=1, column=0)
 
         # this is the frame where the entry frames will be displayed
-        self.dimension_frame = tk.Frame(self)
+        self.dimension_frame = tk.Frame(self.main_frame)
         self.dimension_frame.place(relx=.44, rely=.56)
         self.dimension_frame.config(width=200, height=100, bg="#EBFFFE")
 
@@ -363,7 +349,6 @@ class ShapeFrame(ParentFrame):
             if value == "cube":
                 value1 = float(self.cube_length_entry.get())
                 MainWindow.show_frame(WrappingPaperFrame)
-                MainWindow.update_progress_bar("up")
                 # if value is valid it sends it to the area function
                 present_builder.set_shape(p.cube, value1)
                 return True, value1
@@ -373,7 +358,6 @@ class ShapeFrame(ParentFrame):
                 value2 = float(self.cuboid_width_entry.get())
                 value3 = float(self.cuboid_height_entry.get())
                 MainWindow.show_frame(WrappingPaperFrame)
-                MainWindow.update_progress_bar("up")
                 # if value is valid it sends it to the area function
                 present_builder.set_shape(p.cuboid, value1, value2, value3)
                 return True, value1, value2, value3
@@ -382,12 +366,11 @@ class ShapeFrame(ParentFrame):
                 value1 = float(self.cylinder_diameter_entry.get())
                 value2 = float(self.cylinder_height_entry.get())
                 MainWindow.show_frame(WrappingPaperFrame)
-                MainWindow.update_progress_bar("up")
                 # if value is valid it sends it to the area function
                 present_builder.set_shape(p.cylinder, value1, value2)
                 return True, value1, value2
         except ValueError:
-            error_label = tk.Label(self, text="Invalid input: Enter a number", bg="#EBFFFE", fg="red")
+            error_label = tk.Label(self.main_frame, text="Invalid input: Enter a number", bg="#EBFFFE", fg="red")
             error_label.place(relx=.43, rely=.75)
 
 
@@ -399,17 +382,16 @@ class WrappingPaperFrame(ParentFrame):
         # window controllers set up
         self.header.config(text="Choose a Wrapping paper and a colour:")
         self.header.place(relx=.30, rely=.03)
-        self.subheader = tk.Label(self, text="(NOTE: Standard paper, and purple are selected by default)",
+        self.subheader = tk.Label(self.main_frame, text="(NOTE: Standard paper, and purple are selected by default)",
                                   font=("Helvetica", 8),  bg="#EBFFFE")
         self.subheader.place(relx=.36, rely=0.72)
         self.submit_button.config(command=lambda: [MainWindow.show_frame(ExtrasFrame),
-                                                   MainWindow.update_progress_bar("up"),
                                                    self.process_paper_selection()])
-        self.back_button.config(command=lambda: [MainWindow.show_frame(ShapeFrame),
-                                                 MainWindow.update_progress_bar("down")])
+        self.back_button.config(command=lambda: MainWindow.show_frame(ShapeFrame))
+        self.progress_bar["value"] = 25
 
         # standard paper design
-        self.standard_paper = tk.Canvas(self, width=150, height=150, bg="white", highlightthickness=0)
+        self.standard_paper = tk.Canvas(self.main_frame, width=150, height=150, bg="white", highlightthickness=0)
         self.standard_paper.place(relx=.25, rely=.1)
 
         x1, y1, x2, y2, x3, y3 = 0, 150, 75, 0, 150, 150
@@ -422,7 +404,7 @@ class WrappingPaperFrame(ParentFrame):
             x3 -= 15
 
         # premium paper design
-        self.premium_paper = tk.Canvas(self, width=150, height=150, bg="white", highlightthickness=0)
+        self.premium_paper = tk.Canvas(self.main_frame, width=150, height=150, bg="white", highlightthickness=0)
         self.premium_paper.place(relx=.55, rely=.1)
 
         original_points = [(10, 0), (0, 20), (20, 8), (0, 8), (20, 20)]
@@ -442,11 +424,11 @@ class WrappingPaperFrame(ParentFrame):
         # the default W-paper is Standard Paper
         self.selected_paper.set("standard paper")
 
-        self.standard_paper_button = tk.Radiobutton(self, text=f"{p.w_paper1.name}: £ {p.w_paper1.price} cm2",
+        self.standard_paper_button = tk.Radiobutton(self.main_frame, text=f"{p.w_paper1.name}: £ {p.w_paper1.price} cm2",
                                                     variable=self.selected_paper, value=p.w_paper1.name, bg="#EBFFFE")
         self.standard_paper_button.place(relx=.25, rely=.4)
 
-        self.premium_paper_button = tk.Radiobutton(self, text=f"{p.w_paper2.name}: £ {p.w_paper2.price} cm2",
+        self.premium_paper_button = tk.Radiobutton(self.main_frame, text=f"{p.w_paper2.name}: £ {p.w_paper2.price} cm2",
                                                    variable=self.selected_paper, value=p.w_paper2.name, bg="#EBFFFE")
         self.premium_paper_button.place(relx=.55, rely=.4)
 
@@ -455,7 +437,7 @@ class WrappingPaperFrame(ParentFrame):
         # the default colour is set to purple
         self.selected_colour.set("Purple")
 
-        self.colours_frame = tk.Frame(self, bg="#EBFFFE")
+        self.colours_frame = tk.Frame(self.main_frame, bg="#EBFFFE")
         self.colours_frame.place(relx=.20, rely=0.5)
 
         # here the colour options are set up
@@ -493,11 +475,12 @@ class ExtrasFrame(ParentFrame):
         self.header.place(relx=.35, rely=.03)
         self.submit_button.config(command=lambda: [self.process_bow_selection(),
                                                    self.process_gift_card_selection()])
-        self.back_button.config(command=lambda: [MainWindow.show_frame(WrappingPaperFrame),
-                                                 MainWindow.update_progress_bar("down")])
+        self.back_button.config(command=lambda: MainWindow.show_frame(WrappingPaperFrame))
+
+        self.progress_bar["value"] = 50
 
         # bow selection implementation
-        self.bow_place_holder = tk.Frame(self, bg="white")
+        self.bow_place_holder = tk.Frame(self.main_frame, bg="white")
         self.bow_place_holder.place(relx=.25, rely=.13)
         self.bow_title = tk.Label(self.bow_place_holder, width=20, height=10, text="Bow placeholder",
                                   font=("Helvetica", 8))
@@ -505,11 +488,11 @@ class ExtrasFrame(ParentFrame):
 
         # this variable holds the selection of bow
         self.bow_variable = tk.IntVar(value=0)
-        self.bow_button = tk.Checkbutton(self, variable=self.bow_variable, onvalue=1, text="bow", bg="#EBFFFE")
+        self.bow_button = tk.Checkbutton(self.main_frame, variable=self.bow_variable, onvalue=1, text="bow", bg="#EBFFFE")
         self.bow_button.place(relx=.3, rely=.45)
 
         # gift card selection implementation
-        self.gift_card_place_holder = tk.Frame(self, width=150, height=150, bg="white")
+        self.gift_card_place_holder = tk.Frame(self.main_frame, width=150, height=150, bg="white")
         self.gift_card_place_holder .place(relx=.58, rely=.13)
         self.gift_card_title = tk.Label(self.gift_card_place_holder, width=20, height=10, text="GiftCard placeholder",
                                         font=("Helvetica", 8))
@@ -517,13 +500,13 @@ class ExtrasFrame(ParentFrame):
 
         # this variable holds the selection of gift card
         self.gift_card_variable = tk.IntVar(value=0)
-        self.gift_card_button = tk.Checkbutton(self, variable=self.gift_card_variable, onvalue=1, text="Gift Card",
+        self.gift_card_button = tk.Checkbutton(self.main_frame, variable=self.gift_card_variable, onvalue=1, text="Gift Card",
                                                bg="#EBFFFE", command=lambda: self.show_gift_card_entry())
         self.gift_card_button.place(relx=.62, rely=.45)
 
         # This is the text frame, it will only be displayed if the gift card is selected
 
-        self.gift_card_entry_frame = tk.Frame(self, bg="#EBFFFE")
+        self.gift_card_entry_frame = tk.Frame(self.main_frame, bg="#EBFFFE")
         self.gift_card_entry_prompt = tk.Label(self.gift_card_entry_frame, text="What should we write on the card?",
                                                bg="#EBFFFE", font=("Helvetica", 10))
         self.gift_card_entry_prompt.grid(row=0, column=0, sticky="nw")
@@ -548,18 +531,16 @@ class ExtrasFrame(ParentFrame):
             if self.gift_card_variable.get() == 0:
                 present_builder.set_gift_card(None)
                 MainWindow.show_frame(DatesFrame),
-                MainWindow.update_progress_bar("up")
             elif self.gift_card_variable.get() == 1:
                 if self.gift_card_text.get() is None or len(self.gift_card_text.get().strip()) == 0:
-                    error_label = tk.Label(self, text="Please enter a message for the gift card.", bg="#EBFFFE",
+                    error_label = tk.Label(self.main_frame, text="Please enter a message for the gift card.", bg="#EBFFFE",
                                            fg="red")
                     error_label.place(relx=.39, rely=.75)
                 else:
                     text = str(self.gift_card_text.get())
                     p.gift_card1.set_text(text)
                     present_builder.set_gift_card(p.gift_card1)
-                    MainWindow.show_frame(DatesFrame),
-                    MainWindow.update_progress_bar("up")
+                    MainWindow.show_frame(DatesFrame)
         except ValueError:
             pass
 
@@ -571,25 +552,27 @@ class DatesFrame(ParentFrame):
         # window controllers setup
         self.header.config(text="Choose a drop off and pick up date:")
         self.header.place(relx=.32, rely=.03)
-        self.subheader = tk.Label(self, text="Opening hours: Mon-Fri 8am-18:30m", font=("Helvetica", 10),
+        self.subheader = tk.Label(self.main_frame, text="Opening hours: Mon-Fri 8am-18:30m", font=("Helvetica", 10),
                                   bg="#EBFFFE")
         self.subheader.place(relx=.39, rely=.08)
-        self.sub_subheader = tk.Label(self, text="Please allow 24hrs to get your gift wrapped", font=("Helvetica", 10),
+        self.sub_subheader = tk.Label(self.main_frame, text="Please allow 24hrs to get your gift wrapped", font=("Helvetica", 10),
                                       bg="#EBFFFE")
         self.sub_subheader.place(relx=.37, rely=.50)
         self.submit_button.config(command=lambda: self.validate_dates())
         self.back_button.config(command=lambda: [MainWindow.show_frame(ExtrasFrame)])
 
+        self.progress_bar["value"] = 75
+
         # creation of drop off date calendar
-        self.cal1_header = tk.Label(self, text="Drop off date:", font=("Helvetica", 12), bg="#EBFFFE")
+        self.cal1_header = tk.Label(self.main_frame, text="Drop off date:", font=("Helvetica", 12), bg="#EBFFFE")
         self.cal1_header.place(relx=.15, rely=.12)
-        self.drop_off_calendar = Calendar(self)
+        self.drop_off_calendar = Calendar(self.main_frame)
         self.drop_off_calendar.place(relx=.15, rely=.16)
 
         # creation of pick-up date calendar
-        self.cal2_header = tk.Label(self, text=" Pick up date:", font=("Helvetica", 12), bg="#EBFFFE")
+        self.cal2_header = tk.Label(self.main_frame, text=" Pick up date:", font=("Helvetica", 12), bg="#EBFFFE")
         self.cal2_header.place(relx=.6, rely=.12)
-        self.pick_up_calendar = Calendar(self)
+        self.pick_up_calendar = Calendar(self.main_frame)
         self.pick_up_calendar.place(relx=.6, rely=.16)
 
         # creation of time menu for both dates
@@ -600,16 +583,16 @@ class DatesFrame(ParentFrame):
 
         # time selection for drop off date
         self.drop_off_time = tk.StringVar()
-        self.time1_header = tk.Label(self, text="Drop off time:", font=("Helvetica", 12), bg="#EBFFFE")
+        self.time1_header = tk.Label(self.main_frame, text="Drop off time:", font=("Helvetica", 12), bg="#EBFFFE")
         self.time1_header.place(relx=.25, rely=.55)
-        self.drop_off_time_menu = tk.OptionMenu(self, self.drop_off_time, *options)
+        self.drop_off_time_menu = tk.OptionMenu(self.main_frame, self.drop_off_time, *options)
         self.drop_off_time_menu.place(relx=.25, rely=.59)
 
         # time selection for pick-up date
         self.pick_up_time = tk.StringVar()
-        self.time2_header = tk.Label(self, text="Pick up time:", font=("Helvetica", 12), bg="#EBFFFE")
+        self.time2_header = tk.Label(self.main_frame, text="Pick up time:", font=("Helvetica", 12), bg="#EBFFFE")
         self.time2_header.place(relx=.7, rely=.55)
-        self.pick_up_time_menu = tk.OptionMenu(self, self.pick_up_time, *options)
+        self.pick_up_time_menu = tk.OptionMenu(self.main_frame, self.pick_up_time, *options)
         self.pick_up_time_menu.place(relx=.7, rely=.59)
 
     # dates are validated to check if there's at least 24 hrs in between
@@ -630,8 +613,8 @@ class DatesFrame(ParentFrame):
         # if dates where selected they are processed
         else:
             # dates are turned into appropriate format for datetime module
-            drop_off_datetime = datetime.strptime(drop_off_date, "%d/%m/%y")
-            pick_up_datetime = datetime.strptime(pick_up_date, "%d/%m/%y")
+            drop_off_datetime = datetime.strptime(drop_off_date, "%m/%d/%y")
+            pick_up_datetime = datetime.strptime(pick_up_date, "%m/%d/%y")
 
             # hours are turned into appropriate format for datetime module
             start_hour, start_minute = map(int, self.drop_off_time.get().split(":"))
@@ -643,25 +626,24 @@ class DatesFrame(ParentFrame):
 
             # here it checks if the drop-off date is in the future
             if drop_off_datetime <= datetime.now():
-                error2 = tk.Label(self, text="The dates must be in the future", font=("Helvetica", 10),
+                error2 = tk.Label(self.main_frame, text="The dates must be in the future", font=("Helvetica", 10),
                                   bg="#EBFFFE", fg="red")
                 error2.place(relx=.39, rely=.75)
             else:
                 # here it checks if either of the dates are weekends
                 if drop_off_datetime.weekday() in [5, 6] or pick_up_datetime.weekday() in [5, 6]:
-                    error3 = tk.Label(self, text="The shop is closed on the weekend", font=("Helvetica", 10),
+                    error3 = tk.Label(self.main_frame, text="The shop is closed on the weekend", font=("Helvetica", 10),
                                       bg="#EBFFFE", fg="red")
                     error3.place(relx=.39, rely=.75)
                 else:
                     time_difference = pick_up_datetime - drop_off_datetime
                     # the final validation step is checking if there is at least 24hrs between the days
                     if time_difference.days < 1:
-                        error4 = tk.Label(self, text="Please, allow 24 hrs before picking up",
+                        error4 = tk.Label(self.main_frame, text="Please, allow 24 hrs before picking up",
                                           font=("Helvetica", 10), bg="#EBFFFE", fg="red")
                         error4.place(relx=.39, rely=.75)
                     else:
-                        MainWindow.show_frame(QuoteFrame),
-                        MainWindow.update_progress_bar("up")
+                        MainWindow.show_frame(QuoteFrame)
                         present_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
                         present_builder.calculate_price()
                         QuoteFrame.setup_quote()
@@ -677,16 +659,18 @@ class QuoteFrame(ParentFrame):
         # Window controllers setup
         self.header.config(text="Here is your quote:")
         self.header.place(relx=.40, rely=.03)
-        self.subheader = tk.Label(self, text="feel free to download a copy before you go!", font=("Helvetica", 10),
+        self.subheader = tk.Label(self.main_frame, text="feel free to download a copy before you go!", font=("Helvetica", 10),
                                   bg="#EBFFFE")
         self.subheader.place(relx=.37, rely=.08)
         self.submit_button.config(text="Download")
         self.back_button.config(command=lambda: MainWindow.show_frame(DatesFrame))
 
+        self.progress_bar["value"] = 100
+
         # once all the steps have been completed the present is finalised and built
         QuoteFrame.new_present = present_builder.build()
 
-        QuoteFrame.quote = tk.Text(self, width=50, height=20, font=("Helvetica", 10))
+        QuoteFrame.quote = tk.Text(self.main_frame, width=50, height=20, font=("Helvetica", 10))
         QuoteFrame.quote.place(relx=.3, rely=.15)
 
     @classmethod
