@@ -13,18 +13,16 @@ class PresentBuilder:
         self.new_present.shape = shape
         return self.new_present.shape
 
-    def set_wrapping_paper(self, w_paper):
+    def set_wrapping_paper(self, w_paper: object):
         self.new_present.wrapping_paper = w_paper
         return self.new_present.gift_card
 
-    def set_bow(self, bow):
+    def set_bow(self, bow: object):
         self.new_present.bow = bow
-
         return self.new_present.bow
 
-    def set_gift_card(self, gift_card):
+    def set_gift_card(self, gift_card: object):
         self.new_present.gift_card = gift_card
-
         return self.new_present.gift_card
 
     def calculate_price(self):
@@ -60,40 +58,76 @@ class AccountBuilder:
         self.new_account = user_account.UserAccount()
 
     # here we validate the user input, if successful we pass the dictionary over to the next two methods
-    def input_validation(self, dict):
-        for key, value in dict.items():
+    def input_validation(self, details_dict: dict):
+        for key, value in details_dict.items():
             if not value:
                 return False
-        self.create_credentials(dict)
-        self.create_address(dict)
+        self.create_credentials(details_dict)
+        self.create_address(details_dict)
         return True
 
-    def password_validation(self, password):
-        pass
+    def password_validation(self, password: list):
+        has_digit = False
+        has_upper = False
+        has_lower = False
+        has_special_char = False
+        special_chars = "!£$€@*#%"
+
+        if password[0] != password[1]:
+            return False, "Passwords must must match"
+
+        if len(password[0]) < 8:
+            return False, "Password must be at least 8 characters long"
+
+        for char in password:
+            if char.isdigit():
+                has_digit = True
+            elif char.isupper():
+                has_upper = True
+            elif char.islower():
+                has_lower = True
+            elif char in special_chars:
+                has_special_char = True
+
+        if not has_digit:
+            return False, "Password must have at least one number"
+        if not has_upper:
+            return False, "Password must have at least one capital letter"
+        if not has_lower:
+            return False, "Password must have at least one lowercase character"
+        if not has_special_char:
+            return False, "Password must have at least one special character: !£$€@*#% "
+
+        self.set_password(password[0])
+        return True, password
 
     # here we create a Credential object
-
-    def create_credentials(self, dict):
+    def create_credentials(self, details_dict: dict):
         credentials_keys = ["name", "surname", "DoB", "email", "phone number"]
         user_credentials = user_account.Credentials()
         for key in credentials_keys:
-            if key in dict:
+            if key in details_dict:
                 # replace method is used to link 2 word words to the corresponding attribute
-                setattr(user_credentials, key.replace(" ", "_"), dict[key])
+                setattr(user_credentials, key.replace(" ", "_"), details_dict[key])
 
         self.new_account.credentials = user_credentials
         return self.new_account.credentials
 
     # here we create an Address object
-    def create_address(self, dict):
+    def create_address(self, details_dict: dict):
         address_keys = ["house number", "street", "postcode", "city"]
         user_address = user_account.Address()
         for key in address_keys:
-            if key in dict:
+            if key in details_dict:
                 # replace method is used to link 2 word words to the corresponding attribute
-                setattr(user_address, key.replace(" ", "_"), dict[key])
+                setattr(user_address, key.replace(" ", "_"), details_dict[key])
         self.new_account.user_address = user_address
         return self.new_account.user_address
+
+    def set_password(self, password: str):
+        self.new_account.password = password
+        return self.new_account.password
+
 
 
 

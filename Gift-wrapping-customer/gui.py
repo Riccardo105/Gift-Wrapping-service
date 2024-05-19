@@ -44,7 +44,7 @@ class MainWindow(tk.Tk):
         MainWindow.frames = {}
 
         # here all the frames are being looped and displayed in the window, and placed inside the dictionary
-        for F in (HomeFrame, SignupFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame, QuoteFrame):
+        for F in (LoginFrame, SignupFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame, QuoteFrame):
             frame = F(self)
             MainWindow.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -64,7 +64,7 @@ class MainWindow(tk.Tk):
 
 
 # home page implementation
-class HomeFrame(tk.Frame):
+class LoginFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
@@ -153,7 +153,7 @@ class SignupFrame(tk.Frame):
         self.confirm_password_entry.grid(row=3, column=0, padx=5, pady=5)
 
     # this function extract each entry value and assigns it to the correspondent key in the new_account dictionary
-    def process_user_details(self, details_dict):
+    def process_user_details(self, details_dict: dict):
         for key, var in self.entry_vars.items():
             entry_value = var.get()
             details_dict[key] = entry_value
@@ -167,6 +167,15 @@ class SignupFrame(tk.Frame):
             error_message = tk.Label(self, text="make sure no field is empty", font=("Helvetica", 10), bg="#EBFFFE",
                                      fg="red")
             error_message.place(relx=0.43, rely=0.75)
+
+    def process_password(self):
+        password_list = [self.password_entry.get(), self.confirm_password_entry.get()]
+        is_valid, message = user_builder.password_validation(password_list)
+
+        if is_valid:
+            pass
+        else:
+            pass
 
 
 # the Parent class contains all the widgets shared by every page of the application
