@@ -128,6 +128,10 @@ class AccountBuilder:
         self.new_account.password = password
         return self.new_account.password
 
+    def set_account_number(self):
+        pass
 
+    def build(self):
+        return self.new_account
 
 

@@ -3,6 +3,7 @@
   <component name="dataSourceStorageLocal" created-in="PY-233.13763.11">
     <data-source name="Gift wrapping database" uuid="12ea6066-1a96-4673-ad40-ec41272c9006">
       <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="SQLITE" />
+      <auth-provider>no-auth</auth-provider>
       <schema-mapping />
     </data-source>
   </component>

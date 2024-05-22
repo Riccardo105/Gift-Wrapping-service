@@ -6,6 +6,7 @@ import subprocess
 import sys
 import builders as b
 import present as p
+import user_account as a
 
 
 # here the installation process of the tkcalendar widget take place
@@ -26,7 +27,6 @@ user_builder = b.AccountBuilder()
 class MainWindow(tk.Tk):
     # these class variables are created so that actions can be performed from other frames
     frames = None  # the frames dictionary must be accessed to show the next/previous frame
-    progress_bar = None  # the progress bar must be updated throughout the application
 
     def __init__(self):
         super().__init__()
@@ -51,7 +51,7 @@ class MainWindow(tk.Tk):
             frame.config(width=1000, height=550, bg="#EBFFFE")
 
         # show_frame is run once to determine the starting page (otherwise last page in loop would show_up)
-        self.show_frame(ShapeFrame)
+        self.show_frame(LoginFrame)
 
         # run program
         self.mainloop()
@@ -70,20 +70,20 @@ class LoginFrame(tk.Frame):
 
         # initial Home page setup
 
-        self.header = tk.Label(self, text=" Welcome to the Gift Wrapping Store!", font=("Helvetica", 20))
+        self.header = tk.Label(self, text=" Welcome to the Gift Wrapping Store!", font=("Helvetica", 20), bg="#EBFFFE")
         self.header.place(relx=0.27, rely=0.1)
 
         # here the login frame is set up
-        self.login_frame = tk.Frame(self)
+        self.login_frame = tk.Frame(self, bg="#EBFFFE")
         self.login_frame.place(relx=0.43, rely=0.3)
 
-        self.username_label = ttk.Label(self.login_frame, text="Email:", font=("Helvetica", 9))
+        self.username_label = tk.Label(self.login_frame, text="Email:", font=("Helvetica", 9), bg="#EBFFFE")
         self.username_label.grid(row=0, column=0, sticky=tk.W)
 
         self.username_entry = tk.Entry(self.login_frame, bd=2, relief=tk.SUNKEN)
         self.username_entry.grid(row=1, column=0)
 
-        self.password_label = tk.Label(self.login_frame, text="Password:", font=("Helvetica", 9))
+        self.password_label = tk.Label(self.login_frame, text="Password:", font=("Helvetica", 9), bg="#EBFFFE")
         self.password_label.grid(row=2, column=0, sticky=tk.W)
 
         self.password_entry = tk.Entry(self.login_frame, bd=2, relief=tk.SUNKEN)
@@ -92,7 +92,8 @@ class LoginFrame(tk.Frame):
         self.login_button = ttk.Button(self.login_frame, text="login")
         self.login_button.grid(row=4, column=0, pady=5)
 
-        self.signup_label = tk.Label(self.login_frame, text="Don't have an account yet?", font=("Helvetica", 9))
+        self.signup_label = tk.Label(self.login_frame, text="Don't have an account yet?", font=("Helvetica", 9)
+                                     , bg="#EBFFFE")
         self.signup_label.grid(row=5, column=0, sticky=tk.W, pady=5)
 
         self.signup_button = ttk.Button(self.login_frame, text="Signup", command=lambda:
@@ -110,7 +111,7 @@ class SignupFrame(tk.Frame):
         self.header = tk.Label(self, text="Please enter your details:", font=("Helvetica", 20), bg="#EBFFFE")
         self.header.place(relx=0.35, rely=0.1)
 
-        self.back_button = tk.Button(self, text="Back")
+        self.back_button = ttk.Button(self, text="Back", command=lambda: MainWindow.show_frame(LoginFrame))
         self.back_button.place(relx=0.2, rely=0.2)
 
         # credential form set up
