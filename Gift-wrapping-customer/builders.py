@@ -101,6 +101,11 @@ class AccountBuilder:
         self.set_password(password[0])
         return True, password
 
+    # called by the validation method if successful
+    def set_password(self, password: str):
+        self.new_account.password = password
+        return self.new_account.password
+
     # here we create a Credential object
     def create_credentials(self, details_dict: dict):
         credentials_keys = ["name", "surname", "DoB", "email", "phone number"]
@@ -124,12 +129,6 @@ class AccountBuilder:
         self.new_account.user_address = user_address
         return self.new_account.user_address
 
-    def set_password(self, password: str):
-        self.new_account.password = password
-        return self.new_account.password
-
-    def set_account_number(self):
-        pass
 
     def build(self):
         return self.new_account

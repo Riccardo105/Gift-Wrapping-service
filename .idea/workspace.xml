@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1a74b784-a1f9-48a8-a41e-84c22716a90e" name="Changes" comment="009- ongoing implementation of uploading of new account to database">
+    <list default="true" id="1a74b784-a1f9-48a8-a41e-84c22716a90e" name="Changes" comment="007- completed validation logic for user account details. ongoing implementation of account password logic">
+      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gift wrapping database.db" beforeDir="false" afterPath="$PROJECT_DIR$/Gift wrapping database.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Gift-wrapping-customer/builders.py" beforeDir="false" afterPath="$PROJECT_DIR$/Gift-wrapping-customer/builders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Gift-wrapping-customer/user_account.py" beforeDir="false" afterPath="$PROJECT_DIR$/Gift-wrapping-customer/user_account.py" afterDir="false" />
     </list>
@@ -39,29 +40,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.gui.executor&quot;: &quot;Run&quot;,
-    &quot;Python.user_account.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;login/signup&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Riccardo/PycharmProjects/Gift-Wrapping-service&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.database.main&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.gui.executor": "Run",
+    "Python.user_account.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "login/signup",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/Riccardo/PycharmProjects/Gift-Wrapping-service",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;sqlite&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlite"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="gui" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="Gift-Wrapping-service" />
@@ -72,6 +73,7 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Gift-wrapping-customer" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -105,9 +107,8 @@
       <workItem from="1715861535944" duration="9909000" />
       <workItem from="1715875249819" duration="93000" />
       <workItem from="1716107040826" duration="5105000" />
-      <workItem from="1716497753192" duration="1511000" />
-      <workItem from="1716972593416" duration="8893000" />
-      <workItem from="1716984735899" duration="1606000" />
+      <workItem from="1717051673555" duration="69000" />
+      <workItem from="1717057353572" duration="3579000" />
     </task>
     <task id="LOCAL-00001" summary="001 - initial commit">
       <option name="closed" value="true" />
@@ -125,15 +126,7 @@
       <option name="project" value="LOCAL" />
       <updated>1715875304232</updated>
     </task>
-    <task id="LOCAL-00003" summary="009- ongoing implementation of uploading of new account to database">
-      <option name="closed" value="true" />
-      <created>1716414721370</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1716414721370</updated>
-    </task>
-    <option name="localTasksCounter" value="4" />
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -153,11 +146,10 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="001 - initial commit" />
     <MESSAGE value="006- refactored GUI structure" />
-    <MESSAGE value="009- ongoing implementation of uploading of new account to database" />
-    <option name="LAST_COMMIT_MESSAGE" value="009- ongoing implementation of uploading of new account to database" />
+    <option name="LAST_COMMIT_MESSAGE" value="006- refactored GUI structure" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Gift_Wrapping_service$gui.coverage" NAME="gui Coverage Results" MODIFIED="1716984742397" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
-    <SUITE FILE_PATH="coverage/Gift_Wrapping_service$user_account.coverage" NAME="user_account Coverage Results" MODIFIED="1716984896954" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
+    <SUITE FILE_PATH="coverage/Gift_Wrapping_service$gui.coverage" NAME="gui Coverage Results" MODIFIED="1716107067972" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
+    <SUITE FILE_PATH="coverage/Gift_Wrapping_service$user_account.coverage" NAME="user_account Coverage Results" MODIFIED="1717059713105" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
   </component>
 </project>
