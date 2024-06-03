@@ -66,45 +66,49 @@ class AccountBuilder:
         self.create_address(details_dict)
         return True
 
-    def password_validation(self, password: list):
+    def password_validation(self, password1, password2):
         has_digit = False
         has_upper = False
         has_lower = False
         has_special_char = False
         special_chars = "!£$€@*#%"
 
-        if password[0] != password[1]:
+        if password1 != password2:
             return False, "Passwords must must match"
-
-        if len(password[0]) < 8:
+        if len(password1) < 8:
             return False, "Password must be at least 8 characters long"
 
-        for char in password:
-            if char.isdigit():
-                has_digit = True
-            elif char.isupper():
+        for char in password1:
+            if char.isupper():
                 has_upper = True
+            elif char.isdigit():
+                has_digit = True
             elif char.islower():
                 has_lower = True
             elif char in special_chars:
                 has_special_char = True
 
-        if not has_digit:
-            return False, "Password must have at least one number"
         if not has_upper:
             return False, "Password must have at least one capital letter"
         if not has_lower:
             return False, "Password must have at least one lowercase character"
         if not has_special_char:
             return False, "Password must have at least one special character: !£$€@*#% "
+        if not has_digit:
+            return False, "Password must have at least one number"
 
-        self.set_password(password[0])
-        return True, password
+        self.set_password(password1)
+        return True, "valid password"
 
     # called by the validation method if successful
     def set_password(self, password: str):
         self.new_account.password = password
         return self.new_account.password
+
+    # considering each email is unique to an account we decided to use it as the username
+    def set_username(self):
+        self.new_account.username = self.new_account.credentials.email
+        return self.new_account.username
 
     # here we create a Credential object
     def create_credentials(self, details_dict: dict):
@@ -116,6 +120,7 @@ class AccountBuilder:
                 setattr(user_credentials, key.replace(" ", "_"), details_dict[key])
 
         self.new_account.credentials = user_credentials
+        self.set_username()
         return self.new_account.credentials
 
     # here we create an Address object
@@ -126,12 +131,19 @@ class AccountBuilder:
             if key in details_dict:
                 # replace method is used to link 2 word words to the corresponding attribute
                 setattr(user_address, key.replace(" ", "_"), details_dict[key])
-        self.new_account.user_address = user_address
-        return self.new_account.user_address
+        self.new_account.address = user_address
+        return self.new_account.address
 
-
+    # here we build the current account
     def build(self):
         return self.new_account
 
-
-
+    # here we handle the upload of the account to the database
+    def account_database_upload(self):
+        new_account = self.build()
+        new_account.address.upload_address()
+        new_account.credentials.retrieve_address_id(new_account.address)
+        new_account.credentials.upload_credentials()
+        new_account.retrieve_credentials_id()
+        new_account.retrieve_username()
+        new_account.upload_account()
