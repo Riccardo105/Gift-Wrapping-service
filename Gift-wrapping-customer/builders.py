@@ -1,5 +1,6 @@
 import present
 import user_account
+import sqlite3
 
 
 # this is the builder responsible for creating and building the present
@@ -61,10 +62,19 @@ class AccountBuilder:
     def input_validation(self, details_dict: dict):
         for key, value in details_dict.items():
             if not value:
-                return False
-        self.create_credentials(details_dict)
-        self.create_address(details_dict)
-        return True
+                return False, "please make sure no field is empty"
+
+        conn = sqlite3.connect('../Gift wrapping database.db')
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM user_credentials WHERE email = ?", (details_dict.get("email"),))
+        result = cur.fetchone()
+        if result:
+            return False, "This email is already in use"
+        else:
+
+            self.create_credentials(details_dict)
+            self.create_address(details_dict)
+            return True
 
     def password_validation(self, password1, password2):
         has_digit = False

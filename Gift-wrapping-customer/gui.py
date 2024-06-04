@@ -4,6 +4,7 @@ from tkinter.ttk import Progressbar
 from datetime import datetime
 import subprocess
 import sys
+import sqlite3
 import builders as b
 import present as p
 
@@ -99,6 +100,15 @@ class LoginFrame(tk.Frame):
                                         MainWindow.show_frame(SignupFrame))
         self.signup_button.grid(row=6, column=0, padx=5)
 
+    def process_login_credentials(self):
+        email = self.username_entry.get()
+        if not email:
+            error_message = tk.Label(self, text="Please enter your account's email address.", font=("Helvetica", 8))
+            error_message.place(relx=0.43, rely=0.75)
+            return False
+        else:
+            conn = sqlite3.
+
 
 # Signup page implementation
 class SignupFrame(tk.Frame):
@@ -161,7 +171,9 @@ class SignupFrame(tk.Frame):
         for key, var in self.entry_vars.items():
             entry_value = var.get()
             details_dict[key] = entry_value
-        if user_builder.input_validation(details_dict):
+
+        is_valid, message = user_builder.input_validation(details_dict)
+        if is_valid :
             self.password_frame.place(relx=0.36, rely=0.2)
             self.header.config(text="Now choose a password")
             self.submit_button.config(text="save password", command=lambda: self.process_password())
@@ -172,8 +184,7 @@ class SignupFrame(tk.Frame):
                                                                         command=lambda:
                                                                         self.process_user_details(self.new_account))))
         else:
-
-            error_message = tk.Label(self.error_message_frame, text="make sure no field is empty",
+            error_message = tk.Label(self.error_message_frame, text=message,
                                      font=("Helvetica", 10), bg="#EBFFFE",
                                      fg="red")
 
