@@ -111,6 +111,10 @@ class SignupFrame(tk.Frame):
         self.header = tk.Label(self, text="Please enter your details:", font=("Helvetica", 20), bg="#EBFFFE")
         self.header.place(relx=0.35, rely=0.1)
 
+        self.submit_button = ttk.Button(self, text="Create account", command=lambda:
+                                        self.process_user_details(self.new_account))
+        self.submit_button.place(relx=0.475, rely=0.8)
+
         self.back_button = ttk.Button(self, text="Back", command=lambda: MainWindow.show_frame(LoginFrame))
         self.back_button.place(relx=0.2, rely=0.2)
 
@@ -137,10 +141,6 @@ class SignupFrame(tk.Frame):
             self.entry = tk.Entry(self.credentials_frame, bd=2, textvariable=self.entry_vars[key], relief=tk.SUNKEN)
             self.entry.grid(row=idx, column=1, padx=5, pady=5)
 
-        self.submit_button = ttk.Button(self, text="Create account", command=lambda:
-                                        self.process_user_details(self.new_account))
-        self.submit_button.place(relx=0.475, rely=0.8)
-
         # password form set up
         self.password_frame = tk.Frame(self, bg="#EBFFFE", width=250, height=300)
         self.password_label = tk.Label(self.password_frame, text="Password", font=("Helvetica", 8), bg="#EBFFFE")
@@ -166,6 +166,11 @@ class SignupFrame(tk.Frame):
             self.header.config(text="Now choose a password")
             self.submit_button.config(text="save password", command=lambda: self.process_password())
             self.credentials_frame.place_forget()
+            self.back_button.config(command=lambda: (self.credentials_frame.place(relx=0.36, rely=0.2),
+                                                     self.password_frame.place_forget(),
+                                                     self.submit_button.config(text="Create account",
+                                                                        command=lambda:
+                                                                        self.process_user_details(self.new_account))))
         else:
 
             error_message = tk.Label(self.error_message_frame, text="make sure no field is empty",
@@ -180,6 +185,8 @@ class SignupFrame(tk.Frame):
         is_valid, message = user_builder.password_validation(password1, password2)
         if is_valid:
             user_builder.account_database_upload()
+            MainWindow.show_frame(LoginFrame)
+
         else:
             error_message = tk.Label(self.error_message_frame, text=message, font=("Helvetica", 8), fg="red",
                                      bg="#EBFFFE")
