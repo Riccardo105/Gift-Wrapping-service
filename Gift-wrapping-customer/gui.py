@@ -89,7 +89,7 @@ class LoginFrame(tk.Frame):
         self.password_entry = tk.Entry(self.login_frame, bd=2, relief=tk.SUNKEN)
         self.password_entry.grid(row=3, column=0)
 
-        self.login_button = ttk.Button(self.login_frame, text="login")
+        self.login_button = ttk.Button(self.login_frame, text="login", command=self.process_login_username)
         self.login_button.grid(row=4, column=0, pady=5)
 
         self.signup_label = tk.Label(self.login_frame, text="Don't have an account yet?", font=("Helvetica", 9),
@@ -100,14 +100,61 @@ class LoginFrame(tk.Frame):
                                         MainWindow.show_frame(SignupFrame))
         self.signup_button.grid(row=6, column=0, padx=5)
 
-    def process_login_credentials(self):
+        self.error_message_frame = tk.Frame(self, bg="#EBFFFE")
+        self.error_message_frame.place(relx=0.33, rely=0.75)
+
+    def process_login_username(self):
         email = self.username_entry.get()
         if not email:
-            error_message = tk.Label(self, text="Please enter your account's email address.", font=("Helvetica", 8))
-            error_message.place(relx=0.43, rely=0.75)
+            error_message = tk.Label(self.error_message_frame, text="Please enter your account's email address.",
+                                     font=("Helvetica", 8), bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
             return False
-        else:
-            conn = sqlite3.
+
+        conn = sqlite3.connect("../Gift wrapping database.db")
+        cur = conn.cursor()
+        cur.execute("SELECT username FROM user_account WHERE username=? ",
+                    (email,))
+        result = cur.fetchone()
+        conn.close()
+        if not result:
+            error_message = tk.Label(self.error_message_frame,
+                                     text="We couldn't find an account associated with this email",
+                                     font=("Helvetica", 8), bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
+            return False
+
+        is_valid = self.process_password_verification(email)
+
+        if is_valid:
+            MainWindow.show_frame(ShapeFrame)
+
+    def process_password_verification(self, username):
+        password = self.password_entry.get()
+
+        if not password:
+            error_message = tk.Label(self.error_message_frame, text="Please enter your account's password.",
+                                     font=("Helvetica", 8), bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
+            return False
+
+        conn = sqlite3.connect("../Gift wrapping database.db")
+        cur = conn.cursor()
+        cur.execute("SELECT password FROM user_account WHERE username=? ",
+                    (username,))
+        result = cur.fetchone()
+        if not password == result[0]:
+            error_message = tk.Label(self.error_message_frame,
+                                     text="The password you entered doesn't match our records",
+                                     font=("Helvetica", 8), bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
+            return False
+        return True
+
+
+
+
+
 
 
 # Signup page implementation
@@ -173,7 +220,7 @@ class SignupFrame(tk.Frame):
             details_dict[key] = entry_value
 
         is_valid, message = user_builder.input_validation(details_dict)
-        if is_valid :
+        if is_valid:
             self.password_frame.place(relx=0.36, rely=0.2)
             self.header.config(text="Now choose a password")
             self.submit_button.config(text="save password", command=lambda: self.process_password())
