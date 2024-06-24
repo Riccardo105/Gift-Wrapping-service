@@ -1,3 +1,27 @@
+import sqlite3
+# this is the Customer order, it reflects the database structure
+
+class Order:
+    def __init__(self):
+        self.items = []
+        self.account_id = None
+        self.drop_off_date = None
+        self.pick_up_date = None
+        self.total_price = 0
+
+    def upload_order_to_database(self):
+        conn = sqlite3.connect('../Gift wrapping database.db')
+        cur = conn.cursor()
+
+        attributes = self.__dict__
+        columns = ', '.join(attributes.keys())
+        placeholders = ', '.join(['?'] * len(attributes))
+        values = list(attributes.values())
+
+        cur.execute(f"INSERT INTO orders ({columns}) VALUES ({placeholders})", values)
+        conn.commit()
+        conn.close()
+
 
 # This is the present the user will build, the user inputs are firstly processed by the present builder
 # and then appended to the created object
@@ -10,7 +34,6 @@ class Present:
         self.bow = None
         self.gift_card = None
         self.price = None
-        self.order_dates = None
 
 
 # this is the parent class for the available shapes, in this instance the controller will be only one, the builder

@@ -3,6 +3,36 @@ import user_account
 import sqlite3
 
 
+class OrderBuilder:
+    def __init__(self):
+        self.new_order = present.Order()
+
+# the current account id is retrieved to be used as the foreign key later
+    def retrieve_account_id(self, email):
+        conn = sqlite3.connect('../Gift wrapping database.db')
+        cur = conn.cursor()
+        cur.execute("SELECT account_id FROM user_account WHERE email = ?", (email,))
+        result = cur.fetchone()
+        conn.close()
+        self.new_order.account_id = result[0]
+        return self.new_order.account_id
+
+    def set_order_dates(self, drop_off, pick_up):
+        self.new_order.drop_off_date = drop_off
+        self.new_order.pick_up = pick_up
+
+        return self.new_order.drop_off_date and self.new_order.pick_up
+
+    def calculate_total_price(self):
+
+        for item in self.new_order.items:
+            self.new_order.total_price += item.price
+        return self.new_order.total_price
+
+    def build(self):
+        return self.new_order
+
+
 # this is the builder responsible for creating and building the present
 class PresentBuilder:
     def __init__(self):
@@ -42,11 +72,6 @@ class PresentBuilder:
                             + gift_card_price, 2)
         self.new_present.price = total_price
         return self.new_present.price
-
-    def set_order_dates(self, drop_off, pick_up):
-        order_dates = present.OrderDates(drop_off, pick_up)
-        self.new_present.order_dates = order_dates
-        return self.new_present.order_dates
 
     def build(self):
         return self.new_present
@@ -148,7 +173,8 @@ class AccountBuilder:
     def build(self):
         return self.new_account
 
-    # here we handle the upload of the account to the database
+    '''here we handle the upload of the account to the database, the calls are places in the correct sequence to 
+    update the foreign key fields first'''
     def account_database_upload(self):
         new_account = self.build()
         new_account.address.upload_address()

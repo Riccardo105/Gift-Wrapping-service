@@ -21,6 +21,7 @@ from tkcalendar import Calendar
 
 # here the necessary builders are instantiated
 present_builder = b.PresentBuilder()
+order_builder = b.OrderBuilder()
 user_builder = b.AccountBuilder()
 
 
@@ -44,7 +45,8 @@ class MainWindow(tk.Tk):
         MainWindow.frames = {}
 
         # here all the frames are looped and displayed in the window, and placed inside the dictionary
-        for F in (LoginFrame, SignupFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame, QuoteFrame):
+        for F in (LoginFrame, SignupFrame, HomeFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame,
+                  QuoteFrame):
             frame = F(self)
             MainWindow.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -127,7 +129,8 @@ class LoginFrame(tk.Frame):
         is_valid = self.process_password_verification(email)
 
         if is_valid:
-            MainWindow.show_frame(ShapeFrame)
+            MainWindow.show_frame(HomeFrame)
+            HomeFrame.retrieve_current_user_name(result)
 
     def process_password_verification(self, username):
         password = self.password_entry.get()
@@ -150,11 +153,6 @@ class LoginFrame(tk.Frame):
             error_message.grid(row=0, column=0, sticky="nsew")
             return False
         return True
-
-
-
-
-
 
 
 # Signup page implementation
@@ -249,6 +247,30 @@ class SignupFrame(tk.Frame):
             error_message = tk.Label(self.error_message_frame, text=message, font=("Helvetica", 8), fg="red",
                                      bg="#EBFFFE")
             error_message.grid(row=0, column=0, sticky="nsew")
+
+
+# Homepage implementation
+class HomeFrame(tk.Frame):
+    header = None
+
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent)
+
+        HomeFrame.header = tk.Label(self, font=("Helvetica", 18), bg="#EBFFFE" )
+        HomeFrame.header.place(relx=0.4, rely=0.4)
+
+        self.get_started_button = ttk.Button(self, text="New Order", command=lambda: MainWindow.show_frame(ShapeFrame))
+        self.get_started_button.place(relx=0.4, rely=0.7)
+
+    @classmethod
+    def retrieve_current_user_name(cls, email):
+        conn = sqlite3.connect('../Gift wrapping database.db')
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM user_credentials WHERE email = ?", email)
+        result = cur.fetchone()
+        conn.close()
+        HomeFrame.header.config(text=f"Welcome back, {result[0]}!")
+        return result
 
 
 # the Parent class contains all the widgets shared by every page of the application
@@ -731,7 +753,7 @@ class DatesFrame(ParentFrame):
                         error4.place(relx=.39, rely=.75)
                     else:
                         MainWindow.show_frame(QuoteFrame)
-                        present_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
+                        order_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
                         present_builder.calculate_price()
                         QuoteFrame.setup_quote()
 
