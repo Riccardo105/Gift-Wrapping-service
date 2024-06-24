@@ -7,15 +7,19 @@ class OrderBuilder:
     def __init__(self):
         self.new_order = present.Order()
 
-# the current account id is retrieved to be used as the foreign key later
-    def retrieve_account_id(self, email):
+# the current account id is retrieved based on the log-in email to be used as the foreign key later
+    def retrieve_account_id(self, username):
         conn = sqlite3.connect('../Gift wrapping database.db')
         cur = conn.cursor()
-        cur.execute("SELECT account_id FROM user_account WHERE email = ?", (email,))
+        cur.execute("SELECT account_id FROM user_account WHERE email = ?", (username,))
         result = cur.fetchone()
         conn.close()
         self.new_order.account_id = result[0]
         return self.new_order.account_id
+
+    def add_present(self, new_present):
+        self.new_order.items.append(new_present)
+        return self.new_order.items
 
     def set_order_dates(self, drop_off, pick_up):
         self.new_order.drop_off_date = drop_off
@@ -24,7 +28,6 @@ class OrderBuilder:
         return self.new_order.drop_off_date and self.new_order.pick_up
 
     def calculate_total_price(self):
-
         for item in self.new_order.items:
             self.new_order.total_price += item.price
         return self.new_order.total_price

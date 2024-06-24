@@ -4,14 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1a74b784-a1f9-48a8-a41e-84c22716a90e" name="Changes" comment="014- Completed implementation of log-in logic">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/b43aaf41-7d9b-41cf-aafd-8a19cef84de8.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b43aaf41-7d9b-41cf-aafd-8a19cef84de8.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+    <list default="true" id="1a74b784-a1f9-48a8-a41e-84c22716a90e" name="Changes" comment="015- ongoing implementation of order logic. added database table to reflect the orders/presents structure">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gift wrapping database.db" beforeDir="false" afterPath="$PROJECT_DIR$/Gift wrapping database.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Gift-wrapping-customer/builders.py" beforeDir="false" afterPath="$PROJECT_DIR$/Gift-wrapping-customer/builders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Gift-wrapping-customer/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Gift-wrapping-customer/gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gift-wrapping-customer/present.py" beforeDir="false" afterPath="$PROJECT_DIR$/Gift-wrapping-customer/present.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,7 +125,8 @@
       <workItem from="1718251141246" duration="203000" />
       <workItem from="1718670370548" duration="5049000" />
       <workItem from="1718893010779" duration="27000" />
-      <workItem from="1719212003251" duration="5088000" />
+      <workItem from="1719212003251" duration="5190000" />
+      <workItem from="1719234340745" duration="2765000" />
     </task>
     <task id="LOCAL-00001" summary="001 - initial commit">
       <option name="closed" value="true" />
@@ -179,7 +176,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717903150335</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="015- ongoing implementation of order logic. added database table to reflect the orders/presents structure">
+      <option name="closed" value="true" />
+      <created>1719225274628</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1719225274628</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -203,10 +208,11 @@
     <MESSAGE value="012- Completed implementation of uploading of new account to database" />
     <MESSAGE value="013- Ongoing implementation of log-in logic" />
     <MESSAGE value="014- Completed implementation of log-in logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="014- Completed implementation of log-in logic" />
+    <MESSAGE value="015- ongoing implementation of order logic. added database table to reflect the orders/presents structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="015- ongoing implementation of order logic. added database table to reflect the orders/presents structure" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Gift_Wrapping_service$gui.coverage" NAME="gui Coverage Results" MODIFIED="1718677345893" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
+    <SUITE FILE_PATH="coverage/Gift_Wrapping_service$gui.coverage" NAME="gui Coverage Results" MODIFIED="1719237357556" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
     <SUITE FILE_PATH="coverage/Gift_Wrapping_service$user_account.coverage" NAME="user_account Coverage Results" MODIFIED="1717059713105" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
   </component>
 </project>

@@ -67,6 +67,8 @@ class MainWindow(tk.Tk):
 
 # home page implementation
 class LoginFrame(tk.Frame):
+    username = None
+
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
@@ -119,6 +121,7 @@ class LoginFrame(tk.Frame):
                     (email,))
         result = cur.fetchone()
         conn.close()
+
         if not result:
             error_message = tk.Label(self.error_message_frame,
                                      text="We couldn't find an account associated with this email",
@@ -129,8 +132,9 @@ class LoginFrame(tk.Frame):
         is_valid = self.process_password_verification(email)
 
         if is_valid:
+            LoginFrame.username = result[0]
             MainWindow.show_frame(HomeFrame)
-            HomeFrame.retrieve_current_user_name(result)
+            HomeFrame.retrieve_current_username(result)
 
     def process_password_verification(self, username):
         password = self.password_entry.get()
@@ -259,11 +263,12 @@ class HomeFrame(tk.Frame):
         HomeFrame.header = tk.Label(self, font=("Helvetica", 18), bg="#EBFFFE" )
         HomeFrame.header.place(relx=0.4, rely=0.4)
 
-        self.get_started_button = ttk.Button(self, text="New Order", command=lambda: MainWindow.show_frame(ShapeFrame))
+        self.get_started_button = ttk.Button(self, text="New Order", command=lambda: (MainWindow.show_frame(ShapeFrame),
+                                                                order_builder.retrieve_account_id(LoginFrame.username)))
         self.get_started_button.place(relx=0.4, rely=0.7)
 
     @classmethod
-    def retrieve_current_user_name(cls, email):
+    def retrieve_current_username(cls, email):
         conn = sqlite3.connect('../Gift wrapping database.db')
         cur = conn.cursor()
         cur.execute("SELECT name FROM user_credentials WHERE email = ?", email)
@@ -755,12 +760,11 @@ class DatesFrame(ParentFrame):
                         MainWindow.show_frame(QuoteFrame)
                         order_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
                         present_builder.calculate_price()
-                        QuoteFrame.setup_quote()
+                        new_present = present_builder.build()
+                        order_builder.add_present(new_present)
 
 
 class QuoteFrame(ParentFrame):
-    quote = None
-    new_present = None
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -776,30 +780,19 @@ class QuoteFrame(ParentFrame):
 
         self.progress_bar["value"] = 100
 
+        self.new_order = order_builder.build()
         # once all the steps have been completed the present is finalised and built
-        QuoteFrame.new_present = present_builder.build()
 
         QuoteFrame.quote = tk.Text(self.main_frame, width=50, height=20, font=("Helvetica", 10))
         QuoteFrame.quote.place(relx=.3, rely=.15)
 
-    @classmethod
-    def setup_quote(cls):
-        QuoteFrame.quote.insert(1.0, f"Shape: {QuoteFrame.new_present.shape.name} \n"
-                                f"Wrapping paper: {QuoteFrame.new_present.wrapping_paper.name} \n"
-                                f"Colour: {QuoteFrame.new_present.wrapping_paper.colour} \n")
-        if QuoteFrame.new_present.bow is not None:
-            QuoteFrame.quote.insert(4.0, f"Bow: {QuoteFrame.new_present.bow.name} \n")
-        else:
-            QuoteFrame.quote.insert(4.0, f"Bow: None\n")
+        for item in self.new_order.items:
+            attributes = self.__dict__
 
-        if QuoteFrame.new_present.gift_card is not None:
-            QuoteFrame.quote.insert(5.0, f"Gift Card: {QuoteFrame.new_present.gift_card.name}\n"
-                                         f"Gift Card text: {QuoteFrame.new_present.gift_card.text}\n")
-        else:
-            QuoteFrame.quote.insert(5.0, f"Gift Card: None\n")
-        QuoteFrame.quote.insert(7.0, f"Drop_off_date: {QuoteFrame.new_present.order_dates.drop_off_date}\n"
-                                f"Pick_up_date: {QuoteFrame.new_present.order_dates.pick_up_date}\n"
-                                f"price: £{QuoteFrame.new_present.price}")
+
+
+
+
 
 
 if __name__ == "__main__":
