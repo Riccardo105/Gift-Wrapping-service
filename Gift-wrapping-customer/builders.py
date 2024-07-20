@@ -1,5 +1,39 @@
 import present
 import user_account
+import sqlite3
+
+
+class OrderBuilder:
+    def __init__(self):
+        self.new_order = present.Order()
+
+# the current account id is retrieved based on the log-in email to be used as the foreign key later
+    def retrieve_account_id(self, username):
+        conn = sqlite3.connect('../Gift wrapping database.db')
+        cur = conn.cursor()
+        cur.execute("SELECT account_id FROM user_account WHERE email = ?", (username,))
+        result = cur.fetchone()
+        conn.close()
+        self.new_order.account_id = result[0]
+        return self.new_order.account_id
+
+    def add_present(self, new_present):
+        self.new_order.items.append(new_present)
+        return self.new_order.items
+
+    def set_order_dates(self, drop_off, pick_up):
+        self.new_order.drop_off_date = drop_off
+        self.new_order.pick_up = pick_up
+
+        return self.new_order.drop_off_date and self.new_order.pick_up
+
+    def calculate_total_price(self):
+        for item in self.new_order.items:
+            self.new_order.total_price += item.price
+        return self.new_order.total_price
+
+    def build(self):
+        return self.new_order
 
 
 # this is the builder responsible for creating and building the present
@@ -42,11 +76,6 @@ class PresentBuilder:
         self.new_present.price = total_price
         return self.new_present.price
 
-    def set_order_dates(self, drop_off, pick_up):
-        order_dates = present.OrderDates(drop_off, pick_up)
-        self.new_present.order_dates = order_dates
-        return self.new_present.order_dates
-
     def build(self):
         return self.new_present
 
@@ -61,45 +90,63 @@ class AccountBuilder:
     def input_validation(self, details_dict: dict):
         for key, value in details_dict.items():
             if not value:
-                return False
-        self.create_credentials(details_dict)
-        self.create_address(details_dict)
-        return True
+                return False, "please make sure no field is empty"
 
-    def password_validation(self, password: list):
+        conn = sqlite3.connect('../Gift wrapping database.db')
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM user_credentials WHERE email = ?", (details_dict.get("email"),))
+        result = cur.fetchone()
+        if result:
+            return False, "This email is already in use"
+        else:
+
+            self.create_credentials(details_dict)
+            self.create_address(details_dict)
+            return True
+
+    def password_validation(self, password1, password2):
         has_digit = False
         has_upper = False
         has_lower = False
         has_special_char = False
         special_chars = "!£$€@*#%"
 
-        if password[0] != password[1]:
+        if password1 != password2:
             return False, "Passwords must must match"
-
-        if len(password[0]) < 8:
+        if len(password1) < 8:
             return False, "Password must be at least 8 characters long"
 
-        for char in password:
-            if char.isdigit():
-                has_digit = True
-            elif char.isupper():
+        for char in password1:
+            if char.isupper():
                 has_upper = True
+            elif char.isdigit():
+                has_digit = True
             elif char.islower():
                 has_lower = True
             elif char in special_chars:
                 has_special_char = True
 
-        if not has_digit:
-            return False, "Password must have at least one number"
         if not has_upper:
             return False, "Password must have at least one capital letter"
         if not has_lower:
             return False, "Password must have at least one lowercase character"
         if not has_special_char:
             return False, "Password must have at least one special character: !£$€@*#% "
+        if not has_digit:
+            return False, "Password must have at least one number"
 
-        self.set_password(password[0])
-        return True, password
+        self.set_password(password1)
+        return True, "valid password"
+
+    # called by the validation method if successful
+    def set_password(self, password: str):
+        self.new_account.password = password
+        return self.new_account.password
+
+    # considering each email is unique to an account we decided to use it as the username
+    def set_username(self):
+        self.new_account.username = self.new_account.credentials.email
+        return self.new_account.username
 
     # here we create a Credential object
     def create_credentials(self, details_dict: dict):
@@ -111,6 +158,7 @@ class AccountBuilder:
                 setattr(user_credentials, key.replace(" ", "_"), details_dict[key])
 
         self.new_account.credentials = user_credentials
+        self.set_username()
         return self.new_account.credentials
 
     # here we create an Address object
@@ -121,18 +169,20 @@ class AccountBuilder:
             if key in details_dict:
                 # replace method is used to link 2 word words to the corresponding attribute
                 setattr(user_address, key.replace(" ", "_"), details_dict[key])
-        self.new_account.user_address = user_address
-        return self.new_account.user_address
+        self.new_account.address = user_address
+        return self.new_account.address
 
-    def set_password(self, password: str):
-        self.new_account.password = password
-        return self.new_account.password
-
-    def set_account_number(self):
-        pass
-
+    # here we build the current account
     def build(self):
         return self.new_account
 
-
-
+    '''here we handle the upload of the account to the database, the calls are places in the correct sequence to 
+    update the foreign key fields first'''
+    def account_database_upload(self):
+        new_account = self.build()
+        new_account.address.upload_address()
+        new_account.credentials.retrieve_address_id(new_account.address)
+        new_account.credentials.upload_credentials()
+        new_account.retrieve_credentials_id()
+        new_account.retrieve_username()
+        new_account.upload_account()

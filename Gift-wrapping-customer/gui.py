@@ -4,9 +4,9 @@ from tkinter.ttk import Progressbar
 from datetime import datetime
 import subprocess
 import sys
+import sqlite3
 import builders as b
 import present as p
-import user_account as a
 
 
 # here the installation process of the tkcalendar widget take place
@@ -19,8 +19,9 @@ install("tkcalendar")
 # the import must be executed after the installation
 from tkcalendar import Calendar
 
-
+# here the necessary builders are instantiated
 present_builder = b.PresentBuilder()
+order_builder = b.OrderBuilder()
 user_builder = b.AccountBuilder()
 
 
@@ -43,8 +44,9 @@ class MainWindow(tk.Tk):
         # this dictionary will contain all the frames, so they are accessible to show_frame()
         MainWindow.frames = {}
 
-        # here all the frames are being looped and displayed in the window, and placed inside the dictionary
-        for F in (LoginFrame, SignupFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame, QuoteFrame):
+        # here all the frames are looped and displayed in the window, and placed inside the dictionary
+        for F in (LoginFrame, SignupFrame, HomeFrame, ShapeFrame, WrappingPaperFrame, ExtrasFrame, DatesFrame,
+                  QuoteFrame):
             frame = F(self)
             MainWindow.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -65,6 +67,8 @@ class MainWindow(tk.Tk):
 
 # home page implementation
 class LoginFrame(tk.Frame):
+    username = None
+
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
@@ -89,16 +93,70 @@ class LoginFrame(tk.Frame):
         self.password_entry = tk.Entry(self.login_frame, bd=2, relief=tk.SUNKEN)
         self.password_entry.grid(row=3, column=0)
 
-        self.login_button = ttk.Button(self.login_frame, text="login")
+        self.login_button = ttk.Button(self.login_frame, text="login", command=self.process_login_username)
         self.login_button.grid(row=4, column=0, pady=5)
 
-        self.signup_label = tk.Label(self.login_frame, text="Don't have an account yet?", font=("Helvetica", 9)
-                                     , bg="#EBFFFE")
+        self.signup_label = tk.Label(self.login_frame, text="Don't have an account yet?", font=("Helvetica", 9),
+                                     bg="#EBFFFE")
         self.signup_label.grid(row=5, column=0, sticky=tk.W, pady=5)
 
         self.signup_button = ttk.Button(self.login_frame, text="Signup", command=lambda:
                                         MainWindow.show_frame(SignupFrame))
         self.signup_button.grid(row=6, column=0, padx=5)
+
+        self.error_message_frame = tk.Frame(self, bg="#EBFFFE")
+        self.error_message_frame.place(relx=0.33, rely=0.75)
+
+    def process_login_username(self):
+        email = self.username_entry.get()
+        if not email:
+            error_message = tk.Label(self.error_message_frame, text="Please enter your account's email address.",
+                                     font=("Helvetica", 8), bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
+            return False
+
+        conn = sqlite3.connect("../Gift wrapping database.db")
+        cur = conn.cursor()
+        cur.execute("SELECT username FROM user_account WHERE username=? ",
+                    (email,))
+        result = cur.fetchone()
+        conn.close()
+
+        if not result:
+            error_message = tk.Label(self.error_message_frame,
+                                     text="We couldn't find an account associated with this email",
+                                     font=("Helvetica", 8), bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
+            return False
+
+        is_valid = self.process_password_verification(email)
+
+        if is_valid:
+            LoginFrame.username = result[0]
+            MainWindow.show_frame(HomeFrame)
+            HomeFrame.retrieve_current_username(result)
+
+    def process_password_verification(self, username):
+        password = self.password_entry.get()
+
+        if not password:
+            error_message = tk.Label(self.error_message_frame, text="Please enter your account's password.",
+                                     font=("Helvetica", 8), bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
+            return False
+
+        conn = sqlite3.connect("../Gift wrapping database.db")
+        cur = conn.cursor()
+        cur.execute("SELECT password FROM user_account WHERE username=? ",
+                    (username,))
+        result = cur.fetchone()
+        if not password == result[0]:
+            error_message = tk.Label(self.error_message_frame,
+                                     text="The password you entered doesn't match our records",
+                                     font=("Helvetica", 8), bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
+            return False
+        return True
 
 
 # Signup page implementation
@@ -106,14 +164,21 @@ class SignupFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
+        # window controller setup
         self.config(bg="#EBFFFE")
 
         self.header = tk.Label(self, text="Please enter your details:", font=("Helvetica", 20), bg="#EBFFFE")
         self.header.place(relx=0.35, rely=0.1)
 
+        self.submit_button = ttk.Button(self, text="Create account", command=lambda:
+                                        self.process_user_details(self.new_account))
+        self.submit_button.place(relx=0.475, rely=0.8)
+
         self.back_button = ttk.Button(self, text="Back", command=lambda: MainWindow.show_frame(LoginFrame))
         self.back_button.place(relx=0.2, rely=0.2)
 
+        self.error_message_frame = tk.Frame(self, bg="#EBFFFE")
+        self.error_message_frame.place(relx=0.43, rely=0.75)
         # credential form set up
         self.credentials_frame = tk.Frame(self, bg="#EBFFFE", width=200, height=300)
         self.credentials_frame.place(relx=0.36, rely=0.2)
@@ -135,19 +200,16 @@ class SignupFrame(tk.Frame):
             self.entry = tk.Entry(self.credentials_frame, bd=2, textvariable=self.entry_vars[key], relief=tk.SUNKEN)
             self.entry.grid(row=idx, column=1, padx=5, pady=5)
 
-        self.submit_button = ttk.Button(self, text="Create account", command=lambda:
-                                        self.process_user_details(self.new_account))
-        self.submit_button.place(relx=0.475, rely=0.8)
-
         # password form set up
         self.password_frame = tk.Frame(self, bg="#EBFFFE", width=250, height=300)
-        self.password_label = tk.Label(self.password_frame, text="Password", font=("Helvetica", 8))
+        self.password_label = tk.Label(self.password_frame, text="Password", font=("Helvetica", 8), bg="#EBFFFE")
         self.password_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.password = tk.StringVar()
         self.password_entry = tk.Entry(self.password_frame, textvariable=self.password)
         self.password_entry.grid(row=1, column=0, padx=5, pady=5)
 
-        self.confirm_password_label = tk.Label(self.password_frame, text="Confirm password", font=("Helvetica", 8))
+        self.confirm_password_label = tk.Label(self.password_frame, text="Confirm password", font=("Helvetica", 8),
+                                               bg="#EBFFFE")
         self.confirm_password_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
         self.confirm_password = tk.StringVar()
         self.confirm_password_entry = tk.Entry(self.password_frame, textvariable=self.confirm_password)
@@ -158,25 +220,62 @@ class SignupFrame(tk.Frame):
         for key, var in self.entry_vars.items():
             entry_value = var.get()
             details_dict[key] = entry_value
-        if user_builder.input_validation(details_dict):
+
+        is_valid, message = user_builder.input_validation(details_dict)
+        if is_valid:
             self.password_frame.place(relx=0.36, rely=0.2)
             self.header.config(text="Now choose a password")
-            self.submit_button.config(text="save password")
+            self.submit_button.config(text="save password", command=lambda: self.process_password())
             self.credentials_frame.place_forget()
-
+            self.back_button.config(command=lambda: (self.credentials_frame.place(relx=0.36, rely=0.2),
+                                                     self.password_frame.place_forget(),
+                                                     self.submit_button.config(text="Create account",
+                                                                        command=lambda:
+                                                                        self.process_user_details(self.new_account))))
         else:
-            error_message = tk.Label(self, text="make sure no field is empty", font=("Helvetica", 10), bg="#EBFFFE",
+            error_message = tk.Label(self.error_message_frame, text=message,
+                                     font=("Helvetica", 10), bg="#EBFFFE",
                                      fg="red")
-            error_message.place(relx=0.43, rely=0.75)
+
+            error_message.grid(row=0, column=0)
 
     def process_password(self):
-        password_list = [self.password_entry.get(), self.confirm_password_entry.get()]
-        is_valid, message = user_builder.password_validation(password_list)
-
+        password1 = self.password_entry.get()
+        password2 = self.confirm_password_entry.get()
+        is_valid, message = user_builder.password_validation(password1, password2)
         if is_valid:
-            pass
+            user_builder.account_database_upload()
+            MainWindow.show_frame(LoginFrame)
+
         else:
-            pass
+            error_message = tk.Label(self.error_message_frame, text=message, font=("Helvetica", 8), fg="red",
+                                     bg="#EBFFFE")
+            error_message.grid(row=0, column=0, sticky="nsew")
+
+
+# Homepage implementation
+class HomeFrame(tk.Frame):
+    header = None
+
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent)
+
+        HomeFrame.header = tk.Label(self, font=("Helvetica", 18), bg="#EBFFFE" )
+        HomeFrame.header.place(relx=0.4, rely=0.4)
+
+        self.get_started_button = ttk.Button(self, text="New Order", command=lambda: (MainWindow.show_frame(ShapeFrame),
+                                                                order_builder.retrieve_account_id(LoginFrame.username)))
+        self.get_started_button.place(relx=0.4, rely=0.7)
+
+    @classmethod
+    def retrieve_current_username(cls, email):
+        conn = sqlite3.connect('../Gift wrapping database.db')
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM user_credentials WHERE email = ?", email)
+        result = cur.fetchone()
+        conn.close()
+        HomeFrame.header.config(text=f"Welcome back, {result[0]}!")
+        return result
 
 
 # the Parent class contains all the widgets shared by every page of the application
@@ -434,7 +533,8 @@ class WrappingPaperFrame(ParentFrame):
         # the default W-paper is Standard Paper
         self.selected_paper.set("standard paper")
 
-        self.standard_paper_button = tk.Radiobutton(self.main_frame, text=f"{p.w_paper1.name}: £ {p.w_paper1.price} cm2",
+        self.standard_paper_button = tk.Radiobutton(self.main_frame,
+                                                    text=f"{p.w_paper1.name}: £ {p.w_paper1.price} cm2",
                                                     variable=self.selected_paper, value=p.w_paper1.name, bg="#EBFFFE")
         self.standard_paper_button.place(relx=.25, rely=.4)
 
@@ -498,7 +598,8 @@ class ExtrasFrame(ParentFrame):
 
         # this variable holds the selection of bow
         self.bow_variable = tk.IntVar(value=0)
-        self.bow_button = tk.Checkbutton(self.main_frame, variable=self.bow_variable, onvalue=1, text="bow", bg="#EBFFFE")
+        self.bow_button = tk.Checkbutton(self.main_frame, variable=self.bow_variable, onvalue=1, text="bow",
+                                         bg="#EBFFFE")
         self.bow_button.place(relx=.3, rely=.45)
 
         # gift card selection implementation
@@ -510,7 +611,8 @@ class ExtrasFrame(ParentFrame):
 
         # this variable holds the selection of gift card
         self.gift_card_variable = tk.IntVar(value=0)
-        self.gift_card_button = tk.Checkbutton(self.main_frame, variable=self.gift_card_variable, onvalue=1, text="Gift Card",
+        self.gift_card_button = tk.Checkbutton(self.main_frame, variable=self.gift_card_variable, onvalue=1,
+                                               text="Gift Card",
                                                bg="#EBFFFE", command=lambda: self.show_gift_card_entry())
         self.gift_card_button.place(relx=.62, rely=.45)
 
@@ -543,7 +645,8 @@ class ExtrasFrame(ParentFrame):
                 MainWindow.show_frame(DatesFrame),
             elif self.gift_card_variable.get() == 1:
                 if self.gift_card_text.get() is None or len(self.gift_card_text.get().strip()) == 0:
-                    error_label = tk.Label(self.main_frame, text="Please enter a message for the gift card.", bg="#EBFFFE",
+                    error_label = tk.Label(self.main_frame, text="Please enter a message for the gift card.",
+                                           bg="#EBFFFE",
                                            fg="red")
                     error_label.place(relx=.39, rely=.75)
                 else:
@@ -565,7 +668,8 @@ class DatesFrame(ParentFrame):
         self.subheader = tk.Label(self.main_frame, text="Opening hours: Mon-Fri 8am-18:30m", font=("Helvetica", 10),
                                   bg="#EBFFFE")
         self.subheader.place(relx=.39, rely=.08)
-        self.sub_subheader = tk.Label(self.main_frame, text="Please allow 24hrs to get your gift wrapped", font=("Helvetica", 10),
+        self.sub_subheader = tk.Label(self.main_frame, text="Please allow 24hrs to get your gift wrapped",
+                                      font=("Helvetica", 10),
                                       bg="#EBFFFE")
         self.sub_subheader.place(relx=.37, rely=.50)
         self.submit_button.config(command=lambda: self.validate_dates())
@@ -654,14 +758,13 @@ class DatesFrame(ParentFrame):
                         error4.place(relx=.39, rely=.75)
                     else:
                         MainWindow.show_frame(QuoteFrame)
-                        present_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
+                        order_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
                         present_builder.calculate_price()
-                        QuoteFrame.setup_quote()
+                        new_present = present_builder.build()
+                        order_builder.add_present(new_present)
 
 
 class QuoteFrame(ParentFrame):
-    quote = None
-    new_present = None
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -669,38 +772,27 @@ class QuoteFrame(ParentFrame):
         # Window controllers setup
         self.header.config(text="Here is your quote:")
         self.header.place(relx=.40, rely=.03)
-        self.subheader = tk.Label(self.main_frame, text="feel free to download a copy before you go!", font=("Helvetica", 10),
-                                  bg="#EBFFFE")
+        self.subheader = tk.Label(self.main_frame, text="feel free to download a copy before you go!",
+                                  font=("Helvetica", 10), bg="#EBFFFE")
         self.subheader.place(relx=.37, rely=.08)
         self.submit_button.config(text="Download")
         self.back_button.config(command=lambda: MainWindow.show_frame(DatesFrame))
 
         self.progress_bar["value"] = 100
 
+        self.new_order = order_builder.build()
         # once all the steps have been completed the present is finalised and built
-        QuoteFrame.new_present = present_builder.build()
 
         QuoteFrame.quote = tk.Text(self.main_frame, width=50, height=20, font=("Helvetica", 10))
         QuoteFrame.quote.place(relx=.3, rely=.15)
 
-    @classmethod
-    def setup_quote(cls):
-        QuoteFrame.quote.insert(1.0, f"Shape: {QuoteFrame.new_present.shape.name} \n"
-                                f"Wrapping paper: {QuoteFrame.new_present.wrapping_paper.name} \n"
-                                f"Colour: {QuoteFrame.new_present.wrapping_paper.colour} \n")
-        if QuoteFrame.new_present.bow is not None:
-            QuoteFrame.quote.insert(4.0, f"Bow: {QuoteFrame.new_present.bow.name} \n")
-        else:
-            QuoteFrame.quote.insert(4.0, f"Bow: None\n")
+        for item in self.new_order.items:
+            attributes = self.__dict__
 
-        if QuoteFrame.new_present.gift_card is not None:
-            QuoteFrame.quote.insert(5.0, f"Gift Card: {QuoteFrame.new_present.gift_card.name}\n"
-                                         f"Gift Card text: {QuoteFrame.new_present.gift_card.text}\n")
-        else:
-            QuoteFrame.quote.insert(5.0, f"Gift Card: None\n")
-        QuoteFrame.quote.insert(7.0, f"Drop_off_date: {QuoteFrame.new_present.order_dates.drop_off_date}\n"
-                                f"Pick_up_date: {QuoteFrame.new_present.order_dates.pick_up_date}\n"
-                                f"price: £{QuoteFrame.new_present.price}")
+
+
+
+
 
 
 if __name__ == "__main__":
