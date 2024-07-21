@@ -3,7 +3,7 @@ This is the customer application
 
 the main purpose of this application is to allow the customer to personalize a gift for the store to wrap
 
-the program in written in object-oriented to facilitates the communication with the database.
+the program is written in object-oriented to facilitates the communication with the database.
 
 at this stage the implementation of the following features is completed:
 * gift personalisation 

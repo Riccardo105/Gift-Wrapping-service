@@ -1,6 +1,7 @@
 import sqlite3
-# this is the Customer order, it reflects the database structure
 
+
+# this is the Customer order, it reflects the database structure
 class Order:
     def __init__(self):
         self.items = []
@@ -8,6 +9,8 @@ class Order:
         self.drop_off_date = None
         self.pick_up_date = None
         self.total_price = 0
+
+# Once the order is completed it is uploaded to the databse
 
     def upload_order_to_database(self):
         conn = sqlite3.connect('../Gift wrapping database.db')
@@ -133,7 +136,6 @@ class OrderDates:
 
 
 # here all the available components are created
-
 cube = Cube()
 cuboid = Cuboid()
 cylinder = Cylinder()
@@ -144,3 +146,4 @@ w_paper2 = WrappingPaper("premium paper", 0.75)
 bow1 = Bow("standard bow", 1.50)
 
 gift_card1 = GiftCard("standard gift_card", 0.50, 0.02)
+

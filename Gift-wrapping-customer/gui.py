@@ -260,7 +260,7 @@ class HomeFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
-        HomeFrame.header = tk.Label(self, font=("Helvetica", 18), bg="#EBFFFE" )
+        HomeFrame.header = tk.Label(self, font=("Helvetica", 18), bg="#EBFFFE")
         HomeFrame.header.place(relx=0.4, rely=0.4)
 
         self.get_started_button = ttk.Button(self, text="New Order", command=lambda: (MainWindow.show_frame(ShapeFrame),
@@ -788,11 +788,6 @@ class QuoteFrame(ParentFrame):
 
         for item in self.new_order.items:
             attributes = self.__dict__
-
-
-
-
-
 
 
 if __name__ == "__main__":

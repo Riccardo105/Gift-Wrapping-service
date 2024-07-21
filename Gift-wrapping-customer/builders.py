@@ -11,7 +11,7 @@ class OrderBuilder:
     def retrieve_account_id(self, username):
         conn = sqlite3.connect('../Gift wrapping database.db')
         cur = conn.cursor()
-        cur.execute("SELECT account_id FROM user_account WHERE email = ?", (username,))
+        cur.execute("SELECT account_id FROM user_account WHERE username = ?", (username,))
         result = cur.fetchone()
         conn.close()
         self.new_order.account_id = result[0]
