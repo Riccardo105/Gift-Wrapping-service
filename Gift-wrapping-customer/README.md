@@ -8,14 +8,15 @@ the program is written in object-oriented to facilitates the communication with 
 at this stage the implementation of the following features is completed:
 * gift personalisation 
 * service date picking 
+* sign-up/ log-in system 
 
 
 the following features are currently under development:
-* sign-up/ log-in system 
+
 * order creation
 * database communication
 
 
 please check the project repository for a more in depth walkthrough of the project
 
-last update: 10/05/2024
+last update: 21/07/2024
