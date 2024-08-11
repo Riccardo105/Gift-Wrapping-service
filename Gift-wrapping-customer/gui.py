@@ -26,7 +26,6 @@ user_builder = b.AccountBuilder()
 
 
 class MainWindow(tk.Tk):
-    # these class variables are created so that actions can be performed from other frames
     frames = None  # the frames dictionary must be accessed to show the next/previous frame
 
     def __init__(self):
@@ -41,7 +40,7 @@ class MainWindow(tk.Tk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        # this dictionary will contain all the frames, so they are accessible to show_frame()
+        # this dictionary will contain all the frames, so they are accessible by show_frame()
         MainWindow.frames = {}
 
         # here all the frames are looped and displayed in the window, and placed inside the dictionary
@@ -52,7 +51,7 @@ class MainWindow(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
             frame.config(width=1000, height=550, bg="#EBFFFE")
 
-        # show_frame is run once to determine the starting page (otherwise last page in loop would show_up)
+        # show_frame is run once to determine the starting page (otherwise last page in loop would show up)
         self.show_frame(LoginFrame)
 
         # run program
@@ -164,7 +163,7 @@ class SignupFrame(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
 
-        # window controller setup
+        # window controllers setup
         self.config(bg="#EBFFFE")
 
         self.header = tk.Label(self, text="Please enter your details:", font=("Helvetica", 20), bg="#EBFFFE")
@@ -179,6 +178,7 @@ class SignupFrame(tk.Frame):
 
         self.error_message_frame = tk.Frame(self, bg="#EBFFFE")
         self.error_message_frame.place(relx=0.43, rely=0.75)
+
         # credential form set up
         self.credentials_frame = tk.Frame(self, bg="#EBFFFE", width=200, height=300)
         self.credentials_frame.place(relx=0.36, rely=0.2)
@@ -188,14 +188,14 @@ class SignupFrame(tk.Frame):
         self.new_account = {"name": None, "surname": None, "DoB": None, "email": None, "phone number": None,
                             "house number": None, "street": None, "postcode": None, "city": None}
 
-        # this dictionary allows how to access each entry individually, so they can be assigned to new_account
+        # this dictionary allows us to access each entry individually, so they can be assigned to new_account
         self.entry_vars = {}
 
         # the account creation form is created here
         for idx, (key, _) in enumerate(self.new_account.items()):
             self.label = tk.Label(self.credentials_frame, text=key, font=("Helvetica", 9), bg="#EBFFFE")
             self.label.grid(row=idx, column=0, padx=5, pady=5, sticky="w")
-            # NOTE: both dictionaries keys will always match as entry_vars{} is created off of new_account{}
+            # NOTE: both dictionaries keys will always match since entry_vars{} is created off of new_account{}
             self.entry_vars[key] = tk.StringVar()
             self.entry = tk.Entry(self.credentials_frame, bd=2, textvariable=self.entry_vars[key], relief=tk.SUNKEN)
             self.entry.grid(row=idx, column=1, padx=5, pady=5)
@@ -328,6 +328,7 @@ class ShapeFrame(ParentFrame):
         ''' NOTE: within shape frame the submit button is configured inside "entry_frame_setup", 
             as it has different parameters according to user input'''
 
+        # creation of cube frame
         self.cube_frame = tk.Frame(self.main_frame, bg="#EBFFFE")
         self.cube_frame.place(relx=.15, rely=.15)
         self.cube_canvas = tk.Canvas(self.cube_frame, width=100, height=130, bg="#EBFFFE", highlightthickness=0)
@@ -341,7 +342,7 @@ class ShapeFrame(ParentFrame):
         self.cuboid_canvas.grid(row=0, column=0)
         self.cuboid_canvas.create_rectangle(0, 0, 150, 60, fill="purple", outline="purple")
 
-        # creation of cylinder image
+        # creation of cylinder frame
         self.cylinder_frame = tk.Frame(self.main_frame, bg="#EBFFFE")
         self.cylinder_frame.place(relx=.75, rely=0.12)
 
