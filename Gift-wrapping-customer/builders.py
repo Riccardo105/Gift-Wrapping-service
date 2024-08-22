@@ -1,11 +1,12 @@
 import present
+import order
 import user_account
 import sqlite3
 
 
 class OrderBuilder:
     def __init__(self):
-        self.new_order = present.Order()
+        self.new_order = order.Order()
 
 # the current account id is retrieved based on the log-in email to be used as the foreign key later
     def retrieve_account_id(self, username):
@@ -17,18 +18,14 @@ class OrderBuilder:
         self.new_order.account_id = result[0]
         return self.new_order.account_id
 
-    def add_present(self, new_present):
-        self.new_order.items.append(new_present)
-        return self.new_order.items
-
     def set_order_dates(self, drop_off, pick_up):
         self.new_order.drop_off_date = drop_off
         self.new_order.pick_up = pick_up
 
         return self.new_order.drop_off_date and self.new_order.pick_up
 
-    def calculate_total_price(self):
-        for item in self.new_order.items:
+    def calculate_total_price(self, presents: list):
+        for item in presents:
             self.new_order.total_price += item.price
         return self.new_order.total_price
 
@@ -39,6 +36,7 @@ class OrderBuilder:
 # this is the builder responsible for creating and building the present
 class PresentBuilder:
     def __init__(self):
+        self.presents = []
         self.new_present = present.Present()
 
     # it is called by the relevant class and passes the object as the shape

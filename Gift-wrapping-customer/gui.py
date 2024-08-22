@@ -52,7 +52,7 @@ class MainWindow(tk.Tk):
             frame.config(width=1000, height=550, bg="#EBFFFE")
 
         # show_frame is run once to determine the starting page (otherwise last page in loop would show up)
-        self.show_frame(LoginFrame)
+        self.show_frame(ShapeFrame)
 
         # run program
         self.mainloop()
@@ -758,11 +758,13 @@ class DatesFrame(ParentFrame):
                                           font=("Helvetica", 10), bg="#EBFFFE", fg="red")
                         error4.place(relx=.39, rely=.75)
                     else:
+                        new_present = present_builder.build()
+                        present_builder.presents.append(new_present)
                         MainWindow.show_frame(QuoteFrame)
                         order_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
                         present_builder.calculate_price()
-                        new_present = present_builder.build()
-                        order_builder.add_present(new_present)
+                        QuoteFrame.print_quote()
+
 
 
 class QuoteFrame(ParentFrame):
@@ -784,11 +786,14 @@ class QuoteFrame(ParentFrame):
         self.new_order = order_builder.build()
         # once all the steps have been completed the present is finalised and built
 
-        QuoteFrame.quote = tk.Text(self.main_frame, width=50, height=20, font=("Helvetica", 10))
-        QuoteFrame.quote.place(relx=.3, rely=.15)
+        self.quote = tk.Text(self.main_frame, width=50, height=20, font=("Helvetica", 10))
+        self.quote.place(relx=.3, rely=.15)
 
-        for item in self.new_order.items:
-            attributes = self.__dict__
+    @classmethod
+    def print_quote(cls):
+        for item in present_builder.presents:
+            pass
+
 
 
 if __name__ == "__main__":
