@@ -52,7 +52,7 @@ class MainWindow(tk.Tk):
             frame.config(width=1000, height=550, bg="#EBFFFE")
 
         # show_frame is run once to determine the starting page (otherwise last page in loop would show up)
-        self.show_frame(ShapeFrame)
+        self.show_frame(QuoteFrame)
 
         # run program
         self.mainloop()
@@ -766,8 +766,8 @@ class DatesFrame(ParentFrame):
                         QuoteFrame.print_quote()
 
 
-
 class QuoteFrame(ParentFrame):
+    quote = None
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -782,18 +782,30 @@ class QuoteFrame(ParentFrame):
         self.back_button.config(command=lambda: MainWindow.show_frame(DatesFrame))
 
         self.progress_bar["value"] = 100
-
         self.new_order = order_builder.build()
-        # once all the steps have been completed the present is finalised and built
 
-        self.quote = tk.Text(self.main_frame, width=50, height=20, font=("Helvetica", 10))
-        self.quote.place(relx=.3, rely=.15)
+        QuoteFrame.quote = tk.Text(self.main_frame, height=20, width=45)
+        QuoteFrame.quote.place(relx=.32, rely=.15)
 
     @classmethod
     def print_quote(cls):
-        for item in present_builder.presents:
-            pass
 
+        for item in present_builder.presents:
+            QuoteFrame.quote.insert(1.0, f"Shape: {item.shape.name} \n"
+                                         f"Wrapping paper: {item.wrapping_paper.name} \n"
+                                         f"Colour: {item.wrapping_paper.colour} \n")
+            if item.bow is not None:
+                QuoteFrame.quote.insert(4.0, f"Bow: {item.bow.name} \n")
+            else:
+                QuoteFrame.quote.insert(4.0, f"Bow: None\n")
+
+            if item.gift_card is not None:
+                QuoteFrame.quote.insert(5.0, f"Gift Card: {item.gift_card.name}\n"
+                                             f"Gift Card text: {item.gift_card.text}\n")
+            else:
+                QuoteFrame.quote.insert(5.0, f"Gift Card: None\n")
+
+            QuoteFrame.quote.insert(6.0, f"Price: £{item.price}\n")
 
 
 if __name__ == "__main__":
