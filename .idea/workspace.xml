@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1a74b784-a1f9-48a8-a41e-84c22716a90e" name="Changes" comment="020- ongoing implementation of Quote frame">
+    <list default="true" id="1a74b784-a1f9-48a8-a41e-84c22716a90e" name="Changes" comment="021- ongoing implementation of Quote frame">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Gift-wrapping-customer/builders.py" beforeDir="false" afterPath="$PROJECT_DIR$/Gift-wrapping-customer/builders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Gift-wrapping-customer/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Gift-wrapping-customer/gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,7 +130,8 @@
       <workItem from="1721550275017" duration="1657000" />
       <workItem from="1723923340208" duration="7073000" />
       <workItem from="1724356470026" duration="2367000" />
-      <workItem from="1724400879420" duration="2187000" />
+      <workItem from="1724400879420" duration="3329000" />
+      <workItem from="1725203502901" duration="1106000" />
     </task>
     <task id="LOCAL-00001" summary="001 - initial commit">
       <option name="closed" value="true" />
@@ -202,7 +205,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724358956335</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="021- ongoing implementation of Quote frame">
+      <option name="closed" value="true" />
+      <created>1724409525663</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1724409525663</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -230,10 +241,11 @@
     <MESSAGE value="unversioned files commit" />
     <MESSAGE value="017- completed implementation of sign-up and log-in feature. merged to main branch, will delete signup branch" />
     <MESSAGE value="020- ongoing implementation of Quote frame" />
-    <option name="LAST_COMMIT_MESSAGE" value="020- ongoing implementation of Quote frame" />
+    <MESSAGE value="021- ongoing implementation of Quote frame" />
+    <option name="LAST_COMMIT_MESSAGE" value="021- ongoing implementation of Quote frame" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Gift_Wrapping_service$gui.coverage" NAME="gui Coverage Results" MODIFIED="1724358863910" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
+    <SUITE FILE_PATH="coverage/Gift_Wrapping_service$gui.coverage" NAME="gui Coverage Results" MODIFIED="1725204609823" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
     <SUITE FILE_PATH="coverage/Gift_Wrapping_service$user_account.coverage" NAME="user_account Coverage Results" MODIFIED="1717059713105" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Gift-wrapping-customer" />
   </component>
 </project>

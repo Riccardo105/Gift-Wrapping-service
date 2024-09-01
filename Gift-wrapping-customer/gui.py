@@ -8,7 +8,6 @@ import sqlite3
 import builders as b
 import present as p
 
-
 # here the installation process of the tkcalendar widget take place
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
@@ -52,7 +51,7 @@ class MainWindow(tk.Tk):
             frame.config(width=1000, height=550, bg="#EBFFFE")
 
         # show_frame is run once to determine the starting page (otherwise last page in loop would show up)
-        self.show_frame(QuoteFrame)
+        self.show_frame(ShapeFrame)
 
         # run program
         self.mainloop()
@@ -62,6 +61,7 @@ class MainWindow(tk.Tk):
     def show_frame(cls, page):
         frame = MainWindow.frames[page]
         frame.tkraise()
+
 
 
 # home page implementation
@@ -764,6 +764,11 @@ class DatesFrame(ParentFrame):
                         order_builder.set_order_dates(drop_off_datetime, pick_up_datetime)
                         present_builder.calculate_price()
                         QuoteFrame.print_quote()
+                        self.a()
+
+    def a(self):
+        for i in present_builder.presents:
+            print(i)
 
 
 class QuoteFrame(ParentFrame):
@@ -780,6 +785,10 @@ class QuoteFrame(ParentFrame):
         self.subheader.place(relx=.37, rely=.08)
         self.submit_button.config(text="Download")
         self.back_button.config(command=lambda: MainWindow.show_frame(DatesFrame))
+
+        self.add_new_button = ttk.Button(self.main_frame, text=" ADD NEW",
+                                         command=lambda: MainWindow.show_frame(ShapeFrame))
+        self.add_new_button.place(relx=.85, rely=.05)
 
         self.progress_bar["value"] = 100
         self.new_order = order_builder.build()
@@ -801,12 +810,18 @@ class QuoteFrame(ParentFrame):
 
             if item.gift_card is not None:
                 QuoteFrame.quote.insert(5.0, f"Gift Card: {item.gift_card.name}\n"
-                                             f"Gift Card text: {item.gift_card.text}\n")
+                                        f"Gift Card text: {item.gift_card.text}\n")
             else:
                 QuoteFrame.quote.insert(5.0, f"Gift Card: None\n")
 
-            QuoteFrame.quote.insert(6.0, f"Price: £{item.price}\n")
+            QuoteFrame.quote.insert(7.0, f"Price: £{item.price}\n")
 
 
 if __name__ == "__main__":
     app = MainWindow()
+
+
+
+
+
+
