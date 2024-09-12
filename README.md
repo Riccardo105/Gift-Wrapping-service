@@ -1,7 +1,6 @@
 # Welcome to the Gift-Wrapping-service project
 
-This project is componsed of 3 parts: 
-a customer applications which allows the customer to personalize a gift to be wrapped by the store, 
-a store application which allows the employees to perform a series fo actions 
-and a database to store many useful information to both applications and the store.
+This app allows the user to customise the packaging of his present.
+The user can choose the wrapping paper, colours, bow and/or gift card.
+once the prersent is finalised a quote will be calculated according to the size of the present and the user's personal choices.
 
